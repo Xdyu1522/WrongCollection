@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>错题本小程序布局</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #22c55e;
+            --secondary-color: #16a34a;
+            --bg-color: #f9fafb;
+            --text-color: #333333;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 状态栏 */
+        .status-bar {
+            height: 44px;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        /* 内容区 */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 70px; /* 为底部导航栏留出空间 */
+        }
+        
+        /* 底部导航栏 */
+        .tab-bar {
+            height: 60px;
+            background-color: #ffffff;
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            border-top: 1px solid #f0f0f0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #999999;
+            transition: all 0.3s;
+        }
+        
+        .tab-item.active {
+            color: var(--primary-color);
+        }
+        
+        .tab-item i {
+            font-size: 22px;
+            margin-bottom: 2px;
+        }
+        
+        /* 添加按钮 */
+        .add-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        
+        .add-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(34, 197, 94, 0.5);
+        }
+        
+        .add-btn i {
+            color: white;
+            font-size: 28px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="time">9:41</div>
+        <div class="icons">
+            <span class="mr-2"><i class="fas fa-signal"></i></span>
+            <span class="mr-2"><i class="fas fa-wifi"></i></span>
+            <span><i class="fas fa-battery-full"></i></span>
+        </div>
+    </div>
+    
+    <!-- 小程序标题栏 -->
+    <div class="bg-white py-3 px-4 shadow-sm">
+        <div class="text-center font-medium text-base">错题本</div>
+    </div>
+    
+    <!-- 内容区 -->
+    <div class="content" id="content">
+        <!-- 内容将通过JavaScript注入 -->
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="tab-bar">
+        <a href="home.html" class="tab-item" id="tab-home">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="questions.html" class="tab-item" id="tab-questions">
+            <i class="fas fa-book"></i>
+            <span>错题本</span>
+        </a>
+        <a href="profile.html" class="tab-item" id="tab-profile">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+    
+    <!-- 悬浮添加按钮 -->
+    <a href="add_question.html" class="add-btn" id="add-btn">
+        <i class="fas fa-camera"></i>
+    </a>
+    
+    <script>
+        // 根据当前页面URL设置激活的标签
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop();
+            if (currentPage === 'home.html') {
+                document.getElementById('tab-home').classList.add('active');
+            } else if (currentPage === 'questions.html') {
+                document.getElementById('tab-questions').classList.add('active');
+            } else if (currentPage === 'profile.html') {
+                document.getElementById('tab-profile').classList.add('active');
+            }
+            
+            // 在某些页面隐藏添加按钮
+            if (currentPage === 'add_question.html' || currentPage === 'question_detail.html') {
+                document.getElementById('add-btn').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html> 

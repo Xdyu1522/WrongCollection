@@ -1,0 +1,84 @@
+<!--question_detail.wxml-->
+<view class="container">
+  <!-- 顶部图片区域 -->
+  <view class="image-section">
+    <image src="{{question.imageUrl}}" mode="aspectFit" class="question-image" bindtap="previewImage"></image>
+  </view>
+  
+  <!-- 内容编辑区域 -->
+  <view class="content-section">
+    <!-- 错题信息 -->
+    <view class="info-card">
+      <view class="card-title">错题信息</view>
+      
+      <view class="form-item">
+        <view class="form-label">科目</view>
+        <view class="form-picker">
+          <picker bindchange="bindSubjectChange" value="{{subjectIndex}}" range="{{subjects}}">
+            <view class="picker-value">{{subjects[subjectIndex]}}</view>
+          </picker>
+          <view class="arrow-icon">▼</view>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">难度</view>
+        <view class="difficulty-selector">
+          <view class="difficulty-item {{difficulty === 'easy' ? 'active' : ''}}" data-difficulty="easy" bindtap="setDifficulty">
+            <view class="star-icon">★</view>
+            <text>简单</text>
+          </view>
+          <view class="difficulty-item {{difficulty === 'medium' ? 'active' : ''}}" data-difficulty="medium" bindtap="setDifficulty">
+            <view class="star-icon">★</view>
+            <text>中等</text>
+          </view>
+          <view class="difficulty-item {{difficulty === 'hard' ? 'active' : ''}}" data-difficulty="hard" bindtap="setDifficulty">
+            <view class="star-icon">★</view>
+            <text>困难</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">知识点</view>
+        <view class="form-input">
+          <input placeholder="添加知识点" value="{{knowledgePoint}}" bindinput="inputKnowledgePoint" />
+          <view class="add-tag" bindtap="addKnowledgePoint">+</view>
+        </view>
+      </view>
+      
+      <view class="tags-container" wx:if="{{knowledgePoints.length > 0}}">
+        <view class="tag" wx:for="{{knowledgePoints}}" wx:key="index">
+          {{item}}
+          <view class="tag-close" data-index="{{index}}" bindtap="removeKnowledgePoint">×</view>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">错因</view>
+        <view class="form-textarea">
+          <textarea placeholder="记录错误原因..." value="{{errorReason}}" bindinput="inputErrorReason" auto-height></textarea>
+        </view>
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">笔记</view>
+        <view class="form-textarea">
+          <textarea placeholder="添加笔记..." value="{{notes}}" bindinput="inputNotes" auto-height></textarea>
+        </view>
+      </view>
+    </view>
+    
+    <!-- AI识别结果 -->
+    <view class="info-card" wx:if="{{recognitionResult}}">
+      <view class="card-title">AI识别结果</view>
+      <view class="recognition-content">{{recognitionResult}}</view>
+    </view>
+    
+    <!-- 按钮区域 -->
+    <view class="buttons-container">
+      <button class="secondary-button" bindtap="onCancel">取消</button>
+      <button class="primary-button" bindtap="saveQuestion">保存错题</button>
+    </view>
+  </view>
+</view> 

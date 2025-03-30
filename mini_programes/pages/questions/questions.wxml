@@ -1,0 +1,63 @@
+<!--questions.wxml-->
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <input type="text" placeholder="搜索错题..." bindinput="searchQuestions" />
+    <text class="search-icon">🔍</text>
+  </view>
+  
+  <!-- 筛选标签 -->
+  <scroll-view class="filter-tabs" scroll-x="true" enhanced show-scrollbar="false">
+    <block wx:for="{{filterTabs}}" wx:key="*this">
+      <view class="filter-tab {{activeTab === item ? 'active' : ''}}" bindtap="switchTab" data-tab="{{item}}">
+        {{item}}
+      </view>
+    </block>
+  </scroll-view>
+  
+  <!-- 错题排序 -->
+  <view class="sort-section">
+    <text class="question-count">共{{filteredQuestions.length}}道错题</text>
+    <view class="sort-control">
+      <text class="sort-label">排序:</text>
+      <picker mode="selector" range="{{sortOptions}}" bindchange="changeSortOption">
+        <view class="sort-value">{{currentSort}}</view>
+      </picker>
+    </view>
+  </view>
+  
+  <!-- 错题列表 -->
+  <view class="question-list">
+    <block wx:for="{{filteredQuestions}}" wx:key="id">
+      <view class="question-card" bindtap="navigateToDetail" data-id="{{item.id}}">
+        <image src="{{item.image}}" class="question-img" mode="aspectFill"></image>
+        <view class="question-info">
+          <view class="question-header">
+            <view class="question-title">{{item.title}}</view>
+            <view class="question-status status-{{item.status}}">
+              <view class="status-dot"></view>
+              <text>{{item.statusText}}</text>
+            </view>
+          </view>
+          <view class="question-error">{{item.errorReason}}</view>
+          <view class="question-footer">
+            <view class="question-tags">
+              <text class="question-tag" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+            </view>
+            <text class="question-date">{{item.date}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 无数据提示 -->
+    <view class="empty-state" wx:if="{{filteredQuestions.length === 0}}">
+      <view class="empty-icon">📝</view>
+      <view class="empty-text">暂无错题数据</view>
+      <view class="empty-desc">添加一道错题开始学习吧</view>
+    </view>
+  </view>
+  
+  <!-- 添加按钮 -->
+  <view class="add-btn" bindtap="navigateToCamera">📷</view>
+</view> 

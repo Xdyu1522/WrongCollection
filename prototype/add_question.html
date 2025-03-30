@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>错题本 - 拍照添加错题</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #22c55e;
+            --secondary-color: #16a34a;
+            --bg-color: #f9fafb;
+            --text-color: #333333;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #000;
+            color: var(--text-color);
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 状态栏 */
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 14px;
+            color: white;
+            z-index: 10;
+        }
+        
+        /* 相机预览 */
+        .camera-preview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.pexels.com/photos/4144923/pexels-photo-4144923.jpeg?auto=compress&cs=tinysrgb&w=800');
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+        }
+        
+        /* 相机控制 */
+        .camera-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .camera-option {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .camera-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .camera-btn:before {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #f0f0f0;
+        }
+        
+        /* 顶部操作 */
+        .top-controls {
+            position: fixed;
+            top: 44px;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 10;
+        }
+        
+        .top-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+        
+        /* 网格线 */
+        .grid-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .grid-line-h, .grid-line-v {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .grid-line-h {
+            width: 100%;
+            height: 1px;
+        }
+        
+        .grid-line-v {
+            height: 100%;
+            width: 1px;
+        }
+        
+        .line-1-h {
+            top: 33%;
+        }
+        
+        .line-2-h {
+            top: 67%;
+        }
+        
+        .line-1-v {
+            left: 33%;
+        }
+        
+        .line-2-v {
+            left: 67%;
+        }
+        
+        /* 对焦框 */
+        .focus-box {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border: 2px solid #fde047;
+            border-radius: 10px;
+            z-index: 3;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="time">9:41</div>
+        <div class="icons">
+            <span class="mr-2"><i class="fas fa-signal"></i></span>
+            <span class="mr-2"><i class="fas fa-wifi"></i></span>
+            <span><i class="fas fa-battery-full"></i></span>
+        </div>
+    </div>
+    
+    <!-- 相机预览 -->
+    <div class="camera-preview"></div>
+    
+    <!-- 网格线 -->
+    <div class="grid-lines">
+        <div class="grid-line-h line-1-h"></div>
+        <div class="grid-line-h line-2-h"></div>
+        <div class="grid-line-v line-1-v"></div>
+        <div class="grid-line-v line-2-v"></div>
+    </div>
+    
+    <!-- 对焦框 -->
+    <div class="focus-box"></div>
+    
+    <!-- 顶部控制 -->
+    <div class="top-controls">
+        <a href="home.html" class="top-btn">
+            <i class="fas fa-times"></i>
+        </a>
+        <div class="flex space-x-4">
+            <div class="top-btn">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <div class="top-btn">
+                <i class="fas fa-grip-horizontal"></i>
+            </div>
+            <div class="top-btn">
+                <i class="fas fa-adjust"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 相机控制 -->
+    <div class="camera-controls">
+        <div class="camera-option">
+            <i class="fas fa-images"></i>
+        </div>
+        <a href="question_detail.html" class="camera-btn"></a>
+        <div class="camera-option">
+            <i class="fas fa-sync"></i>
+        </div>
+    </div>
+    
+    <script>
+        // 模拟拍照功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const focusBox = document.querySelector('.focus-box');
+            const cameraPreview = document.querySelector('.camera-preview');
+            
+            // 点击屏幕移动对焦框
+            cameraPreview.addEventListener('click', function(e) {
+                // 获取相对位置
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // 更新对焦框位置，但保持在屏幕内
+                focusBox.style.left = Math.min(Math.max(x, 35), rect.width - 35) + 'px';
+                focusBox.style.top = Math.min(Math.max(y, 35), rect.height - 35) + 'px';
+                focusBox.style.transform = 'none'; // 取消居中
+                
+                // 模拟对焦动画
+                focusBox.style.borderColor = 'yellow';
+                setTimeout(() => {
+                    focusBox.style.borderColor = '#fde047';
+                }, 300);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!--index.wxml-->
+<view class="container">
+  <!-- 状态栏已由微信小程序自动提供 -->
+  
+  <!-- 欢迎区域 -->
+  <view class="welcome-area">
+    <view class="welcome-text">
+      <text class="welcome-title">你好，{{userInfo.nickName}}</text>
+      <text class="welcome-subtitle">今天继续提升自己吧！</text>
+    </view>
+    <view class="avatar-container">
+      <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+        <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
+      </button>
+    </view>
+  </view>
+  
+  <!-- 数据统计 -->
+  <view class="stats-card">
+    <view class="stats-title">错题统计</view>
+    <view class="stats-content">
+      <view class="stats-item">
+        <text class="stats-number">{{statsData.total}}</text>
+        <text class="stats-label">总错题</text>
+      </view>
+      <view class="stats-separator"></view>
+      <view class="stats-item">
+        <text class="stats-number">{{statsData.weekly}}</text>
+        <text class="stats-label">本周新增</text>
+      </view>
+      <view class="stats-separator"></view>
+      <view class="stats-item">
+        <text class="stats-number">{{statsData.mastered}}</text>
+        <text class="stats-label">已掌握</text>
+      </view>
+    </view>
+    <view class="progress-container">
+      <view class="progress-bar-bg">
+        <view class="progress-bar" style="width: {{statsData.progress}}%;"></view>
+      </view>
+      <text class="progress-text">掌握进度：{{statsData.progress}}%</text>
+    </view>
+  </view>
+  
+  <!-- 学科标签 -->
+  <view class="subject-section">
+    <view class="section-header">
+      <text class="section-title">热门学科</text>
+      <text class="view-all" bindtap="navigateToQuestions">查看全部</text>
+    </view>
+    <view class="subject-tags">
+      <block wx:for="{{subjects}}" wx:key="*this">
+        <text class="subject-tag">{{item}}</text>
+      </block>
+    </view>
+  </view>
+  
+  <!-- 快捷功能 -->
+  <view class="features-section">
+    <view class="section-title">快捷功能</view>
+    <view class="feature-card" bindtap="navigateToCamera">
+      <view class="feature-icon">📷</view>
+      <view class="feature-content">
+        <text class="feature-title">拍照记录</text>
+        <text class="feature-desc">拍照快速记录错题</text>
+      </view>
+      <text class="feature-arrow">❯</text>
+    </view>
+    <view class="feature-card" bindtap="navigateToAnalysis">
+      <view class="feature-icon">📚</view>
+      <view class="feature-content">
+        <text class="feature-title">错题分析</text>
+        <text class="feature-desc">查看错题类型分析</text>
+      </view>
+      <text class="feature-arrow">❯</text>
+    </view>
+    <view class="feature-card" bindtap="navigateToReport">
+      <view class="feature-icon">📈</view>
+      <view class="feature-content">
+        <text class="feature-title">学习报告</text>
+        <text class="feature-desc">查看学习进度报告</text>
+      </view>
+      <text class="feature-arrow">❯</text>
+    </view>
+  </view>
+  
+  <!-- 最近错题 -->
+  <view class="recent-section">
+    <view class="section-header">
+      <text class="section-title">最近错题</text>
+      <text class="view-all" bindtap="navigateToQuestions">查看全部</text>
+    </view>
+    <view class="recent-list">
+      <block wx:for="{{recentMistakes}}" wx:key="id">
+        <view class="recent-item" bindtap="navigateToDetail" data-id="{{item.id}}" style="{{index === recentMistakes.length-1 ? 'border-bottom: none;' : ''}}">
+          <image class="recent-img" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="recent-content">
+            <text class="recent-title">{{item.title}}</text>
+            <text class="recent-subtitle">{{item.subject}} · {{item.time}}</text>
+            <text class="status-tag status-{{item.status}}">
+              {{item.status === 'review' ? '需复习' : (item.status === 'pending' ? '待掌握' : '未掌握')}}
+            </text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+  
+  <!-- 添加按钮 -->
+  <view class="add-btn" bindtap="navigateToCamera">📷</view>
+  
+  <!-- 底部导航栏（可以使用自定义tabbar或通过app.json配置） -->
+</view>
