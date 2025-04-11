@@ -150,7 +150,7 @@ page {
 /* 预览图片 */
 .preview-image {
   width: 100%;
-  height: calc(100% - 180rpx);
+  height: 100%;
   object-fit: contain;
 }
 
@@ -383,4 +383,44 @@ page {
 
 .save-btn:active {
   opacity: 0.9;
+}
+
+/* 裁剪相关样式 */
+.crop-container {
+  position: relative;
+  width: 100%;
+  height: calc(100% - 180rpx);
+}
+
+.crop-frame {
+  position: absolute;
+  border: 4rpx dashed #22c55e;
+  box-sizing: border-box;
+  background-color: rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+/* 角落触摸点样式 */
+.crop-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.8);
+  z-index: 15;
+}
+
+/* 边缘触摸条样式 */
+.crop-edge {
+  position: absolute;
+  background: rgba(34, 197, 94, 0.5);
+  z-index: 14;
+}
+
+.crop-edge.top, .crop-edge.bottom {
+  height: 20px;
+}
+
+.crop-edge.left, .crop-edge.right {
+  width: 20px;
 } 

@@ -38,7 +38,31 @@
     
     <!-- 照片预览 -->
     <view class="preview-container" wx:if="{{isPreview && !showForm}}">
-      <image class="preview-image" src="{{photoSrc}}" mode="aspectFit"></image>
+      <!-- 裁剪区域 -->
+      <view class="crop-container">
+        <image class="preview-image" src="{{photoSrc}}" mode="aspectFit" bindload="onImageLoad"></image>
+        <view class="crop-frame" style="top: {{cropFrameTop}}px; left: {{cropFrameLeft}}px; width: {{cropFrameWidth}}px; height: {{cropFrameHeight}}px;"
+          bindtouchstart="cropFrameTouchStart" bindtouchmove="cropFrameTouchMove" bindtouchend="cropFrameTouchEnd"></view>
+        <!-- 四个角的拖动点 -->
+        <view class="crop-corner top-left" style="top: {{cropFrameTop-10}}px; left: {{cropFrameLeft-10}}px;" 
+          data-position="top-left" bindtouchstart="cornerTouchStart" bindtouchmove="cornerTouchMove" bindtouchend="cornerTouchEnd"></view>
+        <view class="crop-corner top-right" style="top: {{cropFrameTop-10}}px; left: {{cropFrameLeft+cropFrameWidth-10}}px;" 
+          data-position="top-right" bindtouchstart="cornerTouchStart" bindtouchmove="cornerTouchMove" bindtouchend="cornerTouchEnd"></view>
+        <view class="crop-corner bottom-left" style="top: {{cropFrameTop+cropFrameHeight-10}}px; left: {{cropFrameLeft-10}}px;" 
+          data-position="bottom-left" bindtouchstart="cornerTouchStart" bindtouchmove="cornerTouchMove" bindtouchend="cornerTouchEnd"></view>
+        <view class="crop-corner bottom-right" style="top: {{cropFrameTop+cropFrameHeight-10}}px; left: {{cropFrameLeft+cropFrameWidth-10}}px;" 
+          data-position="bottom-right" bindtouchstart="cornerTouchStart" bindtouchmove="cornerTouchMove" bindtouchend="cornerTouchEnd"></view>
+        
+        <!-- 四条边的拖动区 -->
+        <view class="crop-edge top" style="top: {{cropFrameTop-10}}px; left: {{cropFrameLeft+10}}px; width: {{cropFrameWidth-20}}px;" 
+          data-position="top" bindtouchstart="edgeTouchStart" bindtouchmove="edgeTouchMove" bindtouchend="edgeTouchEnd"></view>
+        <view class="crop-edge right" style="top: {{cropFrameTop+10}}px; left: {{cropFrameLeft+cropFrameWidth-10}}px; height: {{cropFrameHeight-20}}px;" 
+          data-position="right" bindtouchstart="edgeTouchStart" bindtouchmove="edgeTouchMove" bindtouchend="edgeTouchEnd"></view>
+        <view class="crop-edge bottom" style="top: {{cropFrameTop+cropFrameHeight-10}}px; left: {{cropFrameLeft+10}}px; width: {{cropFrameWidth-20}}px;" 
+          data-position="bottom" bindtouchstart="edgeTouchStart" bindtouchmove="edgeTouchMove" bindtouchend="edgeTouchEnd"></view>
+        <view class="crop-edge left" style="top: {{cropFrameTop+10}}px; left: {{cropFrameLeft-10}}px; height: {{cropFrameHeight-20}}px;" 
+          data-position="left" bindtouchstart="edgeTouchStart" bindtouchmove="edgeTouchMove" bindtouchend="edgeTouchEnd"></view>
+      </view>
       
       <!-- 底部工具栏 -->
       <view class="bottom-tools">
@@ -113,3 +137,6 @@
     将错题放在取景框内，确保光线充足
   </view>
 </view> 
+
+<!-- 隐藏的canvas用于裁剪图片 -->
+<canvas canvas-id="cropCanvas" style="width: 300px; height: 400px; position: absolute; left: -1000px; top: -1000px;"></canvas> 
