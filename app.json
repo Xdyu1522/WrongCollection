@@ -1,0 +1,41 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/profile/profile",
+    "pages/add_question/add_question",
+    "pages/questions/questions",
+    "pages/question_detail/question_detail",
+    "pages/report/report",
+    "pages/logs/logs"
+  ],
+  "window": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "错题本",
+    "navigationBarBackgroundColor": "#22c55e",
+    "backgroundColor": "#f9fafb"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#22c55e",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/questions/questions",
+        "text": "错题本"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

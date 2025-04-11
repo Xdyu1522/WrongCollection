@@ -1,0 +1,62 @@
+<!--profile.wxml-->
+<view class="container">
+  <!-- 用户卡片 -->
+  <view class="user-card">
+    <view class="user-info-container">
+      <view class="user-avatar">
+        <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+          <image class="avatar-img" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}"></image>
+        </button>
+      </view>
+      <view class="user-details">
+        <view class="username">{{userInfo.nickName || '未设置昵称'}}</view>
+        <view class="user-id">ID: {{userInfo.userId || '未登录'}}</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 学习数据 -->
+  <view class="settings-section">
+    <view class="settings-header">学习数据</view>
+    <view class="settings-item" bindtap="navigateToReport">
+      <view class="settings-icon">📈</view>
+      <view class="settings-text">
+        <view class="settings-title">学习报告</view>
+        <view class="settings-desc">查看学习趋势与进度分析</view>
+      </view>
+      <view class="settings-right">❯</view>
+    </view>
+  </view>
+  
+  <!-- 内容管理 -->
+  <view class="settings-section">
+    <view class="settings-header">内容管理</view>
+    <view class="settings-item" bindtap="navigateToCategories">
+      <view class="settings-icon">📁</view>
+      <view class="settings-text">
+        <view class="settings-title">错题分类</view>
+        <view class="settings-desc">管理错题分类与标签</view>
+      </view>
+      <view class="settings-right">❯</view>
+    </view>
+  </view>
+  
+  <!-- 系统设置 -->
+  <view class="settings-section">
+    <view class="settings-header">系统设置</view>
+    <view class="settings-item" bindtap="navigateToNotifications">
+      <view class="settings-icon">🔔</view>
+      <view class="settings-text">
+        <view class="settings-title">通知设置</view>
+        <view class="settings-desc">管理应用通知</view>
+      </view>
+      <view class="settings-right">❯</view>
+    </view>
+  </view>
+  
+  <!-- 退出按钮 -->
+  <button class="logout-btn" bindtap="logout">退出登录</button>
+  
+  <!-- 添加按钮 -->
+  <view class="add-btn" bindtap="navigateToCamera">📷</view>
+</view> 

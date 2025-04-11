@@ -1,0 +1,227 @@
+/**profile.wxss**/
+page {
+  --primary-color: #22c55e;
+  --secondary-color: #16a34a;
+  --bg-color: #f9fafb;
+  --text-color: #333333;
+  height: 100%;
+  background-color: var(--bg-color);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.container {
+  padding: 0;
+  box-sizing: border-box;
+  color: var(--text-color);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 140rpx;
+}
+
+/* 用户卡片 */
+.user-card {
+  background: var(--primary-color);
+  width: 100%;
+  box-sizing: border-box;
+  padding: 40rpx 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.user-info-container {
+  display: flex;
+  align-items: center;
+  gap: 30rpx;
+}
+
+.user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: white;
+  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.avatar-wrapper {
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0;
+  background: none;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+button.avatar-wrapper::after {
+  border: none;
+}
+
+.user-details {
+  flex: 1;
+  color: white;
+}
+
+.username {
+  font-size: 36rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.user-id {
+  font-size: 24rpx;
+  opacity: 0.9;
+}
+
+.join-time {
+  font-size: 26rpx;
+  color: #6b7280;
+  margin-bottom: 24rpx;
+}
+
+.stats-row {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.stats-item {
+  text-align: center;
+  flex: 1;
+}
+
+.stats-value {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.stats-label {
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+/* 设置区块 */
+.settings-section {
+  background: white;
+  border-radius: 16rpx;
+  margin: 30rpx 30rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+  width: calc(100% - 60rpx);
+  box-sizing: border-box;
+}
+
+.settings-header {
+  padding: 24rpx 32rpx;
+  color: #6b7280;
+  font-size: 26rpx;
+  font-weight: 600;
+  border-bottom: 2rpx solid #f3f4f6;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.settings-item {
+  display: flex;
+  padding: 32rpx;
+  border-bottom: 2rpx solid #f3f4f6;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.settings-item:last-child {
+  border-bottom: none;
+}
+
+.settings-icon {
+  width: 72rpx;
+  height: 72rpx;
+  background-color: rgba(34, 197, 94, 0.1);
+  color: var(--primary-color);
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 32rpx;
+  font-size: 36rpx;
+  flex-shrink: 0;
+}
+
+.settings-text {
+  flex: 1;
+}
+
+.settings-title {
+  font-size: 30rpx;
+  margin-bottom: 4rpx;
+}
+
+.settings-desc {
+  color: #9ca3af;
+  font-size: 24rpx;
+}
+
+.settings-right {
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+}
+
+.badge {
+  background-color: #ef4444;
+  color: white;
+  border-radius: 20rpx;
+  padding: 4rpx 12rpx;
+  font-size: 20rpx;
+  margin-right: 12rpx;
+}
+
+.arrow {
+  color: #d1d5db;
+  font-size: 28rpx;
+}
+
+/* 退出按钮 */
+.logout-btn {
+  width: calc(100% - 60rpx);
+  background: white;
+  padding: 24rpx 0;
+  border-radius: 16rpx;
+  font-weight: 500;
+  color: #ef4444;
+  margin: 0 30rpx 30rpx 30rpx;
+  border: none;
+  box-sizing: border-box;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+}
+
+.logout-btn::after {
+  border: none;
+}
+
+/* 添加按钮 */
+.add-btn {
+  position: fixed;
+  bottom: 120rpx;
+  right: 40rpx;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 50%;
+  background: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(34, 197, 94, 0.4);
+  z-index: 100;
+  font-size: 56rpx;
+  color: white;
+} 

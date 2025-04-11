@@ -1,0 +1,151 @@
+<!--question_detail.wxml-->
+<view class="container">
+  <!-- 导航栏 -->
+  <view class="nav-bar">
+    <view class="back-btn" bindtap="navigateBack">
+      <text class="iconfont icon-back"></text>
+    </view>
+    <text class="nav-title">错题详情</text>
+  </view>
+
+  <!-- 内容区 -->
+  <scroll-view class="content" scroll-y>
+    <!-- 错题图片 -->
+    <image 
+      class="question-image" 
+      src="{{question.image}}" 
+      mode="aspectFill"
+      bindtap="previewImage"
+    />
+
+    <!-- 识别结果 -->
+    <view class="section recognition-section">
+      <view class="section-header">
+        <text class="section-title">识别结果</text>
+        <view class="status-tag success">
+          <text class="iconfont icon-check"></text>
+          <text>已完成</text>
+        </view>
+      </view>
+
+      <!-- AI识别的内容 -->
+      <view class="recognition-content">
+        <text>{{question.recognitionResult || '暂无识别结果'}}</text>
+      </view>
+
+      <!-- 识别的学科和知识点 -->
+      <view class="recognition-tags">
+        <view class="tag-group">
+          <text class="tag-label">识别学科：</text>
+          <view class="tag-list">
+            <text class="tag-item">{{question.subject}}</text>
+          </view>
+        </view>
+        <view class="tag-group">
+          <text class="tag-label">知识点：</text>
+          <view class="tag-list">
+            <text 
+              class="tag-item" 
+              wx:for="{{question.tags}}" 
+              wx:key="*this"
+            >{{item}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 错题信息编辑 -->
+    <view class="section edit-section">
+      <view class="section-title">修改信息</view>
+
+      <!-- 错题标题 -->
+      <view class="form-item">
+        <text class="form-label">错题标题</text>
+        <input 
+          class="input-field" 
+          value="{{editForm.title}}"
+          data-field="title"
+          bindinput="updateForm"
+          placeholder="输入错题标题"
+        />
+      </view>
+
+      <!-- 选择学科 -->
+      <view class="form-item">
+        <text class="form-label">选择学科</text>
+        <view class="chip-list">
+          <view 
+            class="chip {{editForm.subject === subject ? 'selected' : ''}}"
+            wx:for="{{subjects}}"
+            wx:key="*this"
+            data-subject="{{item}}"
+            bindtap="selectSubject"
+          >{{item}}</view>
+        </view>
+      </view>
+
+      <!-- 知识点标签 -->
+      <view class="form-item">
+        <text class="form-label">知识点标签</text>
+        <view class="chip-list">
+          <view 
+            class="chip {{editForm.tags.includes(tag) ? 'selected' : ''}}"
+            wx:for="{{availableTags}}"
+            wx:key="*this"
+            data-tag="{{item}}"
+            bindtap="toggleTag"
+          >{{item}}</view>
+        </view>
+      </view>
+
+      <!-- 错误原因 -->
+      <view class="form-item">
+        <text class="form-label">错误原因</text>
+        <textarea 
+          class="textarea-field" 
+          value="{{editForm.errorReason}}"
+          data-field="errorReason"
+          bindinput="updateForm"
+          placeholder="描述错误原因..."
+        />
+      </view>
+
+      <!-- 掌握状态 -->
+      <view class="form-item">
+        <text class="form-label">掌握状态</text>
+        <view class="status-list">
+          <view 
+            class="status-item {{editForm.status === 'not-mastered' ? 'selected' : ''}}"
+            data-status="not-mastered"
+            bindtap="selectStatus"
+          >
+            <text class="status-dot not-mastered"></text>
+            <text>未掌握</text>
+          </view>
+          <view 
+            class="status-item {{editForm.status === 'review' ? 'selected' : ''}}"
+            data-status="review"
+            bindtap="selectStatus"
+          >
+            <text class="status-dot review"></text>
+            <text>需复习</text>
+          </view>
+          <view 
+            class="status-item {{editForm.status === 'mastered' ? 'selected' : ''}}"
+            data-status="mastered"
+            bindtap="selectStatus"
+          >
+            <text class="status-dot mastered"></text>
+            <text>已掌握</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-btn" bindtap="saveChanges">
+    <text class="iconfont icon-save"></text>
+    <text>保存修改</text>
+  </view>
+</view> 

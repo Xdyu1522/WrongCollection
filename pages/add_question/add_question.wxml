@@ -1,0 +1,115 @@
+<!--add_question.wxml-->
+<view class="container">
+  <!-- 相机授权提示 -->
+  <block wx:if="{{!cameraAuth}}">
+    <view class="auth-container">
+      <view class="auth-icon">📷</view>
+      <view class="auth-title">需要相机权限</view>
+      <view class="auth-desc">请授权使用相机权限以便拍照记录错题</view>
+      <button class="auth-btn" bindtap="requestCameraAuth">授权相机</button>
+    </view>
+  </block>
+  
+  <block wx:else>
+    <!-- 相机预览 -->
+    <view class="camera-container" wx:if="{{!isPreview && !showForm}}">
+      <camera device-position="{{cameraDevice}}" flash="{{cameraFlash}}" class="camera"></camera>
+      
+      <!-- 顶部工具栏 -->
+      <view class="top-tools">
+        <view class="tool-btn" bindtap="switchFlash">
+          <text class="tool-icon">{{cameraFlash === 'on' ? '🔆' : (cameraFlash === 'off' ? '🔅' : '⚡')}}</text>
+        </view>
+      </view>
+      
+      <!-- 底部工具栏 -->
+      <view class="bottom-tools">
+        <view class="tool-btn album-btn" bindtap="chooseFromAlbum">
+          <text class="tool-icon">🖼️</text>
+        </view>
+        <view class="capture-btn" bindtap="takePhoto">
+          <view class="capture-btn-inner"></view>
+        </view>
+        <view class="tool-btn switch-btn" bindtap="switchCamera">
+          <text class="tool-icon">🔄</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 照片预览 -->
+    <view class="preview-container" wx:if="{{isPreview && !showForm}}">
+      <image class="preview-image" src="{{photoSrc}}" mode="aspectFit"></image>
+      
+      <!-- 底部工具栏 -->
+      <view class="bottom-tools">
+        <view class="tool-btn" bindtap="retakePhoto">
+          <text class="tool-icon">↩️</text>
+          <text class="tool-text">重拍</text>
+        </view>
+        <view class="tool-btn use-btn" bindtap="usePhoto">
+          <text class="tool-icon">✓</text>
+          <text class="tool-text">使用</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 错题信息表单 -->
+    <view class="form-container" wx:if="{{showForm}}">
+      <view class="form-header">
+        <text class="form-title">错题信息</text>
+        <view class="form-close" bindtap="retakePhoto">✕</view>
+      </view>
+      
+      <view class="form-content">
+        <!-- 标题输入 -->
+        <view class="form-item">
+          <text class="form-label">错题标题</text>
+          <input class="form-input" placeholder="请输入错题标题" value="{{formData.title}}" bindinput="onTitleInput" />
+        </view>
+        
+        <!-- 学科选择 -->
+        <view class="form-item">
+          <text class="form-label">所属学科</text>
+          <picker mode="selector" range="{{subjects}}" bindchange="onSubjectChange">
+            <view class="picker {{formData.subject ? '' : 'placeholder'}}">
+              {{formData.subject || '请选择学科'}}
+            </view>
+          </picker>
+        </view>
+        
+        <!-- 标签选择 -->
+        <view class="form-item">
+          <text class="form-label">标签（最多3个）</text>
+          <view class="tag-list">
+            <view class="tag-item {{selectedTags.includes(tag) ? 'selected' : ''}}" 
+                  wx:for="{{tagOptions}}" 
+                  wx:key="*this"
+                  data-tag="{{item}}"
+                  bindtap="onTagSelect">
+              {{item}}
+            </view>
+          </view>
+        </view>
+        
+        <!-- 错误原因 -->
+        <view class="form-item">
+          <text class="form-label">错误原因</text>
+          <textarea class="form-textarea" 
+                    placeholder="请描述做错这道题的原因" 
+                    value="{{formData.errorReason}}"
+                    bindinput="onErrorReasonInput" />
+        </view>
+      </view>
+      
+      <!-- 保存按钮 -->
+      <view class="form-footer">
+        <button class="save-btn" bindtap="saveQuestion">保存错题</button>
+      </view>
+    </view>
+  </block>
+  
+  <!-- 提示文本 -->
+  <view class="tip-text" wx:if="{{!hasTakePhoto}}">
+    将错题放在取景框内，确保光线充足
+  </view>
+</view> 

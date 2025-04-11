@@ -1,0 +1,249 @@
+page {
+  --primary-color: #22c55e;
+  --secondary-color: #16a34a;
+  --bg-color: #f9fafb;
+  --text-color: #333333;
+  --text-light: #666666;
+  --border-color: #f0f0f0;
+  --danger-color: #ef4444;
+  background: var(--bg-color);
+}
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 导航栏 */
+.nav-bar {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  background-color: #ffffff;
+  border-bottom: 1rpx solid var(--border-color);
+}
+
+.back-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-light);
+}
+
+.nav-title {
+  margin-left: 32rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+/* 内容区 */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 180rpx;
+}
+
+/* 错题图片 */
+.question-image {
+  width: 100%;
+  height: 480rpx;
+  object-fit: cover;
+}
+
+/* 区块样式 */
+.section {
+  margin: 20rpx;
+  padding: 32rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* 识别结果 */
+.recognition-section {
+  margin-top: 20rpx;
+}
+
+.status-tag {
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+  color: var(--primary-color);
+}
+
+.status-tag .iconfont {
+  margin-right: 8rpx;
+}
+
+.recognition-content {
+  background: var(--bg-color);
+  padding: 24rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: var(--text-color);
+  margin-bottom: 24rpx;
+}
+
+.recognition-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.tag-group {
+  display: flex;
+  align-items: center;
+}
+
+.tag-label {
+  width: 160rpx;
+  font-size: 26rpx;
+  color: var(--text-light);
+}
+
+.tag-list {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.tag-item {
+  display: inline-block;
+  padding: 8rpx 24rpx;
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--primary-color);
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  border: 1rpx solid rgba(34, 197, 94, 0.2);
+}
+
+/* 表单样式 */
+.form-item {
+  margin-bottom: 32rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 26rpx;
+  color: var(--text-light);
+  margin-bottom: 16rpx;
+}
+
+.input-field {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 24rpx;
+  border: 1rpx solid var(--border-color);
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: var(--text-color);
+  background: #ffffff;
+}
+
+.textarea-field {
+  width: 100%;
+  height: 200rpx;
+  padding: 24rpx;
+  border: 1rpx solid var(--border-color);
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: var(--text-color);
+  background: #ffffff;
+}
+
+/* 学科选择 */
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.chip {
+  padding: 12rpx 24rpx;
+  background: var(--bg-color);
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  color: var(--text-color);
+}
+
+.chip.selected {
+  background: var(--primary-color);
+  color: #ffffff;
+}
+
+/* 状态选择 */
+.status-list {
+  display: flex;
+  gap: 32rpx;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 26rpx;
+  color: var(--text-color);
+}
+
+.status-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+}
+
+.status-dot.not-mastered {
+  background: var(--danger-color);
+}
+
+.status-dot.review {
+  background: #f59e0b;
+}
+
+.status-dot.mastered {
+  background: var(--primary-color);
+}
+
+.status-item.selected {
+  color: var(--primary-color);
+}
+
+/* 底部按钮 */
+.bottom-btn {
+  position: fixed;
+  left: 50%;
+  bottom: 40rpx;
+  transform: translateX(-50%);
+  width: 90%;
+  height: 100rpx;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 50rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 500;
+  box-shadow: 0 8rpx 24rpx rgba(34, 197, 94, 0.4);
+}
+
+.bottom-btn .iconfont {
+  margin-right: 8rpx;
+} 

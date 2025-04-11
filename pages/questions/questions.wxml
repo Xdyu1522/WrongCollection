@@ -1,0 +1,103 @@
+<!--questions.wxml-->
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <input 
+      class="search-input" 
+      placeholder="搜索错题..." 
+      value="{{searchText}}"
+      bindinput="onSearch"
+    />
+    <text class="iconfont icon-search search-icon"></text>
+  </view>
+  
+  <!-- 筛选标签和排序 -->
+  <view class="filter-section">
+    <!-- 筛选标签 -->
+    <scroll-view 
+      class="filter-tabs" 
+      scroll-x="true" 
+      enhanced="true"
+      show-scrollbar="false"
+      scroll-with-animation="true"
+    >
+      <view 
+        class="filter-tab {{currentSubject === 'all' ? 'active' : ''}}"
+        bindtap="filterBySubject"
+        data-subject="all"
+      >全部</view>
+      <view 
+        class="filter-tab {{currentSubject === subject ? 'active' : ''}}"
+        wx:for="{{subjects}}"
+        wx:key="*this"
+        wx:for-item="subject"
+        bindtap="filterBySubject"
+        data-subject="{{subject}}"
+      >{{subject}}</view>
+    </scroll-view>
+    
+    <!-- 排序选项 -->
+    <view class="sort-section">
+      <view class="count-text">共{{totalCount}}道错题</view>
+      <view class="sort-wrapper">
+        <text class="sort-label">排序:</text>
+        <picker 
+          class="sort-picker" 
+          bindchange="onSortChange" 
+          value="{{sortIndex}}" 
+          range="{{sortOptions}}"
+        >
+          <text>{{sortOptions[sortIndex]}}</text>
+        </picker>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 错题列表 -->
+  <scroll-view 
+    class="question-list" 
+    scroll-y 
+    bindscrolltolower="loadMore"
+    enable-back-to-top
+  >
+    <block wx:if="{{questions.length > 0}}">
+      <view 
+        class="question-card"
+        wx:for="{{questions}}"
+        wx:key="id"
+        bindtap="navigateToDetail"
+        data-id="{{item.id}}"
+      >
+        <image 
+          class="question-image" 
+          src="{{item.image}}" 
+          mode="aspectFill"
+        />
+        <view class="question-info">
+          <view class="question-title">{{item.title}}</view>
+          <view class="question-error">{{item.errorReason}}</view>
+          <view class="question-footer">
+            <view class="question-tags">
+              <text class="question-tag">{{item.subject}}</text>
+              <text class="question-tag" wx:if="{{item.tags && item.tags.length > 0}}">{{item.tags[0]}}</text>
+            </view>
+            <view class="question-status status-{{item.status}}">
+              <view class="status-dot"></view>
+              <text>{{item.statusText}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+    <view wx:else class="empty-state">
+      <text class="iconfont icon-empty empty-icon"></text>
+      <text class="empty-text">暂无错题记录</text>
+      <text class="empty-text">点击右下角添加错题</text>
+    </view>
+  </scroll-view>
+  
+  <!-- 添加按钮 -->
+  <view class="add-btn" bindtap="navigateToAdd">
+    <text class="iconfont icon-add"></text>
+  </view>
+</view> 
