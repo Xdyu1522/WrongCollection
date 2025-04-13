@@ -34,9 +34,14 @@ Page({
       subject: '',
       tags: [],
       errorReason: '',
+      questionType: '选择题', // 默认选择题
+      correctAnswer: '',      // 正确答案
+      answerPhotoSrc: '',     // 答案图片路径
       status: 'not-mastered',
       statusText: '未掌握'
     },
+    // 是否正在拍摄答案照片
+    isAnswerCapture: false,
     // 学科选项
     subjects: ['语文', '数学', '英语', '物理', '化学', '生物', '政治', '历史', '地理'],
     // 标签选项
@@ -302,7 +307,7 @@ Page({
         });
         // 如果裁剪失败，仍然显示表单
         that.setData({
-          showForm: true
+      showForm: true
         });
       }
     });
@@ -355,6 +360,37 @@ Page({
     })
   },
 
+  // 选择题目类型
+  onQuestionTypeSelect(e) {
+    const type = e.currentTarget.dataset.type;
+    this.setData({
+      'formData.questionType': type
+    });
+  },
+  
+  // 正确答案输入
+  onCorrectAnswerInput(e) {
+    this.setData({
+      'formData.correctAnswer': e.detail.value
+    });
+  },
+  
+  // 拍摄答案照片
+  takeAnswerPhoto() {
+    this.setData({
+      isAnswerCapture: true,
+      showForm: false
+    });
+  },
+  
+  // 重新拍摄答案照片
+  retakeAnswerPhoto() {
+    this.setData({
+      'formData.answerPhotoSrc': ''
+    });
+    this.takeAnswerPhoto();
+  },
+
   // 保存错题
   saveQuestion() {
     const { formData, photoSrc } = this.data
@@ -362,7 +398,7 @@ Page({
     // 表单验证
     if (!formData.title.trim()) {
       wx.showToast({
-        title: '请输入错题标题',
+        title: '请输入错题内容',
         icon: 'none'
       })
       return
@@ -376,13 +412,24 @@ Page({
       return
     }
     
-    if (!formData.errorReason.trim()) {
+    // 验证正确答案
+    if (formData.questionType !== '大题' && !formData.correctAnswer.trim()) {
       wx.showToast({
-        title: '请输入错误原因',
+        title: '请输入正确答案',
         icon: 'none'
       })
       return
     }
+    
+    if (formData.questionType === '大题' && !formData.answerPhotoSrc) {
+      wx.showToast({
+        title: '请拍照添加答案',
+        icon: 'none'
+      })
+      return
+    }
+    
+    // 错误原因现在是选填的，不需要验证
 
     // 获取当前时间
     const now = new Date()
@@ -653,6 +700,43 @@ Page({
   edgeTouchEnd: function() {
     this.setData({
       activeEdge: ''
+    });
+  },
+
+  // 从相册选择答案照片
+  chooseAnswerFromAlbum() {
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album'],
+      success: (res) => {
+        this.setData({
+          'formData.answerPhotoSrc': res.tempFilePaths[0],
+          isAnswerCapture: false,
+          showForm: true
+        });
+      }
+    });
+  },
+
+  // 拍摄答案照片
+  captureAnswerPhoto() {
+    const ctx = wx.createCameraContext();
+    ctx.takePhoto({
+      quality: 'high',
+      success: (res) => {
+        this.setData({
+          'formData.answerPhotoSrc': res.tempImagePath,
+          isAnswerCapture: false,
+          showForm: true
+        });
+      },
+      fail: () => {
+        wx.showToast({
+          title: '拍照失败',
+          icon: 'none'
+        });
+      }
     });
   },
 }) 
