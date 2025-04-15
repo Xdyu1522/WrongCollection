@@ -12,7 +12,7 @@
   
   <block wx:else>
     <!-- 相机预览 -->
-    <view class="camera-container" wx:if="{{!isPreview && !showForm}}">
+    <view class="camera-container" wx:if="{{(!isPreview && !showForm) || isAnswerCapture}}">
       <camera device-position="{{cameraDevice}}" flash="{{cameraFlash}}" class="camera"></camera>
       
       <!-- 顶部工具栏 -->
@@ -24,15 +24,20 @@
       
       <!-- 底部工具栏 -->
       <view class="bottom-tools">
-        <view class="tool-btn album-btn" bindtap="chooseFromAlbum">
+        <view class="tool-btn album-btn" bindtap="{{isAnswerCapture ? 'chooseAnswerFromAlbum' : 'chooseFromAlbum'}}">
           <text class="tool-icon">🖼️</text>
         </view>
-        <view class="capture-btn" bindtap="takePhoto">
+        <view class="capture-btn" bindtap="{{isAnswerCapture ? 'captureAnswerPhoto' : 'takePhoto'}}">
           <view class="capture-btn-inner"></view>
         </view>
         <view class="tool-btn switch-btn" bindtap="switchCamera">
           <text class="tool-icon">🔄</text>
         </view>
+      </view>
+      
+      <!-- 提示文本 -->
+      <view class="tip-text">
+        {{isAnswerCapture ? '拍摄答案解析' : '将错题放在取景框内，确保光线充足'}}
       </view>
     </view>
     
@@ -85,10 +90,31 @@
       </view>
       
       <view class="form-content">
-        <!-- 标题输入 -->
+        <!-- 题目图片显示 -->
         <view class="form-item">
-          <text class="form-label">错题标题</text>
-          <input class="form-input" placeholder="请输入错题标题" value="{{formData.title}}" bindinput="onTitleInput" />
+          <image class="question-preview" src="{{photoSrc}}" mode="widthFix"></image>
+        </view>
+
+        <!-- 题目类型选择 -->
+        <view class="form-item">
+          <text class="form-label">题目类型</text>
+          <view class="question-type-list">
+            <view class="type-item {{formData.questionType === '选择题' ? 'selected' : ''}}" 
+                  data-type="选择题" 
+                  bindtap="onQuestionTypeSelect">选择题</view>
+            <view class="type-item {{formData.questionType === '填空题' ? 'selected' : ''}}" 
+                  data-type="填空题" 
+                  bindtap="onQuestionTypeSelect">填空题</view>
+            <view class="type-item {{formData.questionType === '大题' ? 'selected' : ''}}" 
+                  data-type="大题" 
+                  bindtap="onQuestionTypeSelect">大题</view>
+          </view>
+        </view>
+        
+        <!-- 错题内容输入 -->
+        <view class="form-item">
+          <text class="form-label">错题内容</text>
+          <input class="form-input" placeholder="请输入错题内容" value="{{formData.title}}" bindinput="onTitleInput" />
         </view>
         
         <!-- 学科选择 -->
@@ -105,7 +131,7 @@
         <view class="form-item">
           <text class="form-label">标签（最多3个）</text>
           <view class="tag-list">
-            <view class="tag-item {{selectedTags.includes(tag) ? 'selected' : ''}}" 
+            <view class="tag-item {{selectedTags.includes(item) ? 'selected' : ''}}" 
                   wx:for="{{tagOptions}}" 
                   wx:key="*this"
                   data-tag="{{item}}"
@@ -115,9 +141,35 @@
           </view>
         </view>
         
-        <!-- 错误原因 -->
+        <!-- 正确答案 -->
         <view class="form-item">
-          <text class="form-label">错误原因</text>
+          <text class="form-label">正确答案</text>
+          
+          <!-- 选择题或填空题的文本输入 -->
+          <block wx:if="{{formData.questionType === '选择题' || formData.questionType === '填空题'}}">
+            <input class="form-input" placeholder="请输入正确答案" value="{{formData.correctAnswer}}" bindinput="onCorrectAnswerInput" />
+          </block>
+          
+          <!-- 大题的拍照功能 -->
+          <block wx:if="{{formData.questionType === '大题'}}">
+            <view class="answer-photo-container">
+              <block wx:if="{{!formData.answerPhotoSrc}}">
+                <view class="add-answer-btn" bindtap="takeAnswerPhoto">
+                  <text class="add-icon">+</text>
+                  <text>拍照添加答案</text>
+                </view>
+              </block>
+              <block wx:else>
+                <image class="answer-preview" src="{{formData.answerPhotoSrc}}" mode="widthFix"></image>
+                <view class="retake-answer-btn" bindtap="retakeAnswerPhoto">重新拍照</view>
+              </block>
+            </view>
+          </block>
+        </view>
+        
+        <!-- 错误原因 (非必填) -->
+        <view class="form-item">
+          <text class="form-label">错误原因 (选填)</text>
           <textarea class="form-textarea" 
                     placeholder="请描述做错这道题的原因" 
                     value="{{formData.errorReason}}"
