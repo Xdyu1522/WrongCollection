@@ -33,6 +33,36 @@
         <text>{{question.recognitionResult || '暂无识别结果'}}</text>
       </view>
 
+      <!-- 答案区域 - 根据不同类型显示不同形式 -->
+      <view class="answer-section" wx:if="{{question.answerType}}">
+        <view class="section-header">
+          <text class="section-title">答案</text>
+        </view>
+        
+        <!-- 选择题和填空题答案 - 展示为字符串 -->
+        <view class="answer-content" wx:if="{{question.answerType === 'choice' || question.answerType === 'fill'}}">
+          <view class="text-string-answer">
+            <text class="answer-label">答案：</text>
+            <text class="answer-value">{{question.answer}}</text>
+          </view>
+        </view>
+        
+        <!-- 解答题答案 - 展示图片 -->
+        <view class="answer-content" wx:elif="{{question.answerType === 'calculation' || question.answerType === 'proof' || question.answerType === 'normal'}}">
+          <view class="image-answer" wx:if="{{question.answerImage}}">
+            <image class="answer-image" src="{{question.answerImage}}" mode="widthFix" bindtap="previewAnswerImage"></image>
+          </view>
+          <view class="text-answer" wx:else>
+            <rich-text nodes="{{question.answer}}"></rich-text>
+          </view>
+        </view>
+        
+        <!-- 默认答案展示 -->
+        <view class="answer-content" wx:else>
+          <text>{{question.answer || '暂无答案'}}</text>
+        </view>
+      </view>
+
       <!-- 识别的学科和知识点 -->
       <view class="recognition-tags">
         <view class="tag-group">
@@ -78,10 +108,99 @@
             class="chip {{editForm.subject === subject ? 'selected' : ''}}"
             wx:for="{{subjects}}"
             wx:key="*this"
-            data-subject="{{item}}"
+            wx:for-item="subject"
+            data-subject="{{subject}}"
             bindtap="selectSubject"
-          >{{item}}</view>
+          >{{subject}}</view>
         </view>
+      </view>
+
+      <!-- 选择答案类型 -->
+      <view class="form-item">
+        <text class="form-label">答案类型</text>
+        <view class="chip-list">
+          <view 
+            class="chip {{editForm.answerType === type.id ? 'selected' : ''}}"
+            wx:for="{{answerTypes}}"
+            wx:key="id"
+            wx:for-item="type"
+            data-type="{{type.id}}"
+            bindtap="selectAnswerType"
+          >{{type.name}}</view>
+        </view>
+      </view>
+
+      <!-- 答案输入区域 - 根据类型显示不同表单 -->
+      <view class="form-item">
+        <text class="form-label">答案内容</text>
+        
+        <!-- 选择题答案 -->
+        <block wx:if="{{editForm.answerType === 'choice'}}">
+          <input 
+            class="input-field" 
+            value="{{editForm.answer}}"
+            data-field="answer"
+            bindinput="updateForm"
+            placeholder="输入正确选项，如：A, B, C, D"
+          />
+        </block>
+        
+        <!-- 填空题答案 -->
+        <block wx:elif="{{editForm.answerType === 'fill'}}">
+          <view class="fill-answers">
+            <view class="fill-answer-item" wx:for="{{editForm.answerList}}" wx:key="index">
+              <view class="fill-answer-input">
+                <text class="fill-answer-label">空{{index+1}}：</text>
+                <input 
+                  class="input-field-inline" 
+                  value="{{item}}"
+                  data-index="{{index}}"
+                  bindinput="updateFillAnswer"
+                  placeholder="输入答案"
+                />
+              </view>
+              <view class="remove-btn" bindtap="removeFillBlank" data-index="{{index}}">
+                <text class="iconfont icon-delete"></text>
+              </view>
+            </view>
+            <view class="add-fill-btn" bindtap="addFillBlank">
+              <text class="iconfont icon-add"></text>
+              <text>添加空格</text>
+            </view>
+          </view>
+        </block>
+        
+        <!-- 计算题/证明题/普通题答案 -->
+        <block wx:else>
+          <view class="answer-options">
+            <view class="answer-option-tabs">
+              <view class="tab {{answerInputMode === 'text' ? 'active' : ''}}" bindtap="setAnswerInputMode" data-mode="text">文字答案</view>
+              <view class="tab {{answerInputMode === 'image' ? 'active' : ''}}" bindtap="setAnswerInputMode" data-mode="image">图片答案</view>
+            </view>
+            
+            <!-- 文字答案输入 -->
+            <view class="answer-input-area" wx:if="{{answerInputMode === 'text'}}">
+              <textarea 
+                class="textarea-field" 
+                value="{{editForm.answer}}"
+                data-field="answer"
+                bindinput="updateForm"
+                placeholder="输入详细答案..."
+              />
+            </view>
+            
+            <!-- 图片答案上传 -->
+            <view class="answer-input-area" wx:if="{{answerInputMode === 'image'}}">
+              <view class="image-upload-area" bindtap="chooseAnswerImage">
+                <image wx:if="{{editForm.answerImage}}" class="answer-preview-image" src="{{editForm.answerImage}}" mode="aspectFit"></image>
+                <view wx:else class="upload-placeholder">
+                  <text class="iconfont icon-camera"></text>
+                  <text class="upload-text">点击上传答案图片</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
       </view>
 
       <!-- 知识点标签 -->
@@ -92,9 +211,10 @@
             class="chip {{editForm.tags.includes(tag) ? 'selected' : ''}}"
             wx:for="{{availableTags}}"
             wx:key="*this"
-            data-tag="{{item}}"
+            wx:for-item="tag"
+            data-tag="{{tag}}"
             bindtap="toggleTag"
-          >{{item}}</view>
+          >{{tag}}</view>
         </view>
       </view>
 

@@ -22,6 +22,11 @@ page {
   padding: 24rpx 32rpx;
   background-color: #ffffff;
   border-bottom: 1rpx solid var(--border-color);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
 }
 
 .back-btn {
@@ -45,13 +50,17 @@ page {
   flex: 1;
   overflow-y: auto;
   padding-bottom: 180rpx;
+  margin-top: 108rpx; /* 导航栏高度 */
 }
 
 /* 错题图片 */
 .question-image {
   width: 100%;
   height: 480rpx;
-  object-fit: cover;
+  object-fit: contain; /* 使图片保持原比例并完全显示 */
+  background-color: #f2f2f2;
+  margin: 0 auto; /* 居中显示 */
+  display: block;
 }
 
 /* 区块样式 */
@@ -99,6 +108,139 @@ page {
   line-height: 1.6;
   color: var(--text-color);
   margin-bottom: 24rpx;
+}
+
+/* 答案区域 */
+.answer-section {
+  margin-top: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.answer-content {
+  background: var(--bg-color);
+  padding: 24rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: var(--text-color);
+}
+
+/* 选择题答案 */
+.choice-answer {
+  display: flex;
+  align-items: center;
+}
+
+.choice-label {
+  color: var(--text-light);
+  margin-right: 12rpx;
+}
+
+.choice-value {
+  font-weight: 500;
+  color: var(--primary-color);
+  font-size: 32rpx;
+}
+
+/* 填空题答案 */
+.fill-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.fill-answer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fill-answer-input {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.fill-answer-label {
+  width: 80rpx;
+  font-size: 26rpx;
+  color: var(--text-light);
+}
+
+.input-field-inline {
+  flex: 1;
+  height: 80rpx;
+  padding: 0 24rpx;
+  border: 1rpx solid var(--border-color);
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: var(--text-color);
+  background: #ffffff;
+}
+
+.remove-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--danger-color);
+}
+
+.add-fill-btn {
+  margin-top: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16rpx;
+  border: 1rpx dashed var(--border-color);
+  border-radius: 16rpx;
+  color: var(--primary-color);
+  font-size: 28rpx;
+}
+
+.add-fill-btn .iconfont {
+  margin-right: 8rpx;
+}
+
+/* 文本字符串答案样式 */
+.text-string-answer {
+  display: flex;
+  align-items: center;
+}
+
+.answer-label {
+  color: var(--text-light);
+  margin-right: 12rpx;
+  font-size: 28rpx;
+}
+
+.answer-value {
+  font-weight: 500;
+  color: var(--primary-color);
+  font-size: 32rpx;
+}
+
+/* 图片答案样式 */
+.image-answer {
+  width: 100%;
+  margin-top: 12rpx;
+}
+
+.answer-image {
+  width: 100%;
+  border-radius: 12rpx;
+  background-color: #f2f2f2;
+}
+
+/* 文本答案 */
+.text-answer {
+  white-space: pre-wrap;
+}
+
+.text-answer rich-text {
+  width: 100%;
+  display: block;
 }
 
 .recognition-tags {
@@ -192,15 +334,24 @@ page {
 /* 状态选择 */
 .status-list {
   display: flex;
-  gap: 32rpx;
+  gap: 20rpx;
+  margin-top: 16rpx;
 }
 
 .status-item {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 8rpx;
-  font-size: 26rpx;
+  justify-content: center;
+  gap: 12rpx;
+  font-size: 28rpx;
   color: var(--text-color);
+  background-color: #f5f5f5;
+  border-radius: 16rpx;
+  padding: 16rpx 20rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 2rpx solid transparent;
 }
 
 .status-dot {
@@ -222,7 +373,23 @@ page {
 }
 
 .status-item.selected {
-  color: var(--primary-color);
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.status-item[data-status="not-mastered"].selected {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+.status-item[data-status="review"].selected {
+  background-color: #f59e0b;
+  border-color: #f59e0b;
+}
+
+.status-item[data-status="mastered"].selected {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
 /* 底部按钮 */
@@ -246,4 +413,78 @@ page {
 
 .bottom-btn .iconfont {
   margin-right: 8rpx;
+}
+
+/* 答案选项卡 */
+.answer-options {
+  width: 100%;
+}
+
+.answer-option-tabs {
+  display: flex;
+  border-bottom: 1rpx solid var(--border-color);
+  margin-bottom: 20rpx;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  font-size: 28rpx;
+  color: var(--text-light);
+  position: relative;
+}
+
+.tab.active {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.tab.active:after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 25%;
+  width: 50%;
+  height: 4rpx;
+  background-color: var(--primary-color);
+  border-radius: 4rpx;
+}
+
+.answer-input-area {
+  margin-top: 16rpx;
+}
+
+/* 图片上传区域 */
+.image-upload-area {
+  width: 100%;
+  height: 300rpx;
+  background-color: #f5f5f5;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-light);
+}
+
+.upload-placeholder .iconfont {
+  font-size: 60rpx;
+  margin-bottom: 16rpx;
+}
+
+.upload-text {
+  font-size: 28rpx;
+}
+
+.answer-preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 } 

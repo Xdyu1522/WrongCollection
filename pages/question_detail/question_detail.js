@@ -7,15 +7,26 @@ Page({
   data: {
     question: null,
     isEditing: false,
+    answerInputMode: 'text', // 默认为文字输入模式
     editForm: {
       title: '',
       subject: '',
       tags: [],
-      status: '',
-      errorReason: ''
+      status: 'not-mastered',
+      errorReason: '',
+      answerType: '',
+      answer: '',
+      answerList: [],
+      answerImage: '' // 添加答案图片字段
     },
     subjects: ['语文', '数学', '英语', '物理', '化学', '生物', '政治', '历史', '地理'],
+    answerTypes: [
+      { id: 'choice', name: '选择题' },
+      { id: 'fill', name: '填空题' },
+      { id: 'normal', name: '解答题' }
+    ],
     subjectIndex: 0,
+    answerTypeIndex: 0,
     difficulty: 'medium',
     knowledgePoint: '',
     knowledgePoints: [],
@@ -48,11 +59,17 @@ Page({
           title: question.title,
           subject: question.subject,
           tags: [...question.tags],
-          status: question.status,
-          errorReason: question.errorReason
+          status: question.status || 'not-mastered',
+          errorReason: question.errorReason,
+          answerType: question.answerType || 'normal',
+          answer: question.answer || '',
+          answerList: question.answerList || [],
+          answerImage: question.answerImage || ''
         },
+        answerInputMode: question.answerImage ? 'image' : 'text',
         subjectIndex: this.data.subjects.indexOf(question.subject) > -1 ? 
                       this.data.subjects.indexOf(question.subject) : 0,
+        answerTypeIndex: this.getAnswerTypeIndex(question.answerType),
         difficulty: question.difficulty || 'medium',
         knowledgePoints: question.knowledgePoints || [],
         errorReason: question.errorReason || '',
@@ -69,6 +86,67 @@ Page({
         wx.navigateBack()
       }, 1500)
     }
+  },
+
+  /**
+   * 获取答案类型索引
+   */
+  getAnswerTypeIndex(type) {
+    if (!type) return 2; // 默认为解答题
+    const index = this.data.answerTypes.findIndex(t => t.id === type);
+    return index > -1 ? index : 2;
+  },
+
+  /**
+   * 选择答案类型
+   */
+  selectAnswerType(e) {
+    const { type } = e.currentTarget.dataset;
+    this.setData({
+      'editForm.answerType': type,
+      // 切换类型时重置答案
+      'editForm.answer': '',
+      'editForm.answerList': []
+    });
+  },
+
+  /**
+   * 更新填空题答案
+   */
+  updateFillAnswer(e) {
+    const { index } = e.currentTarget.dataset;
+    const value = e.detail.value;
+    const answerList = [...this.data.editForm.answerList];
+    
+    // 更新指定索引的答案
+    answerList[index] = value;
+    
+    this.setData({
+      'editForm.answerList': answerList
+    });
+  },
+
+  /**
+   * 添加填空
+   */
+  addFillBlank() {
+    const answerList = [...this.data.editForm.answerList, ''];
+    this.setData({
+      'editForm.answerList': answerList
+    });
+  },
+
+  /**
+   * 删除填空
+   */
+  removeFillBlank(e) {
+    const { index } = e.currentTarget.dataset;
+    const answerList = [...this.data.editForm.answerList];
+    answerList.splice(index, 1);
+    
+    this.setData({
+      'editForm.answerList': answerList
+    });
   },
 
   /**
@@ -125,14 +203,6 @@ Page({
       return
     }
     
-    if (!editForm.errorReason.trim()) {
-      wx.showToast({
-        title: '请输入错误原因',
-        icon: 'none'
-      })
-      return
-    }
-    
     // 更新错题数据
     const questions = wx.getStorageSync('questions') || []
     const updatedQuestions = questions.map(q => {
@@ -152,19 +222,17 @@ Page({
     // 更新全局数据
     app.globalData.questions = updatedQuestions
     
-    // 更新页面数据
-    this.setData({
-      question: {
-        ...question,
-        ...editForm,
-        statusText: this.getStatusText(editForm.status)
-      },
-      isEditing: false
-    })
-    
+    // 显示保存成功提示
     wx.showToast({
       title: '保存成功',
-      icon: 'success'
+      icon: 'success',
+      duration: 1500,
+      success: () => {
+        // 延迟返回，让用户看到提示
+        setTimeout(() => {
+          wx.navigateBack()
+        }, 1500)
+      }
     })
   },
 
@@ -184,9 +252,20 @@ Page({
    * 预览图片
    */
   previewImage: function() {
-    if (this.data.question && this.data.question.imageUrl) {
+    if (this.data.question && this.data.question.image) {
       wx.previewImage({
-        urls: [this.data.question.imageUrl]
+        urls: [this.data.question.image]
+      });
+    }
+  },
+
+  /**
+   * 预览答案图片
+   */
+  previewAnswerImage: function() {
+    if (this.data.question && this.data.question.answerImage) {
+      wx.previewImage({
+        urls: [this.data.question.answerImage]
       });
     }
   },
@@ -403,5 +482,54 @@ Page({
         }
       }
     })
+  },
+
+  /**
+   * 选择掌握状态
+   */
+  selectStatus(e) {
+    const { status } = e.currentTarget.dataset
+    this.setData({
+      'editForm.status': status
+    })
+  },
+
+  /**
+   * 选择学科
+   */
+  selectSubject(e) {
+    const { subject } = e.currentTarget.dataset
+    this.setData({
+      'editForm.subject': subject
+    })
+  },
+
+  /**
+   * 设置答案输入模式
+   */
+  setAnswerInputMode(e) {
+    const { mode } = e.currentTarget.dataset;
+    this.setData({
+      answerInputMode: mode
+    });
+  },
+
+  /**
+   * 选择答案图片
+   */
+  chooseAnswerImage() {
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        const tempFilePath = res.tempFilePaths[0];
+        
+        // 更新表单中的图片路径
+        this.setData({
+          'editForm.answerImage': tempFilePath
+        });
+      }
+    });
   }
 }) 

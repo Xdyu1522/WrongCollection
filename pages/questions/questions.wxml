@@ -16,7 +16,7 @@
     <!-- 筛选标签 -->
     <scroll-view 
       class="filter-tabs" 
-      scroll-x="true" 
+      scroll-x="false" 
       enhanced="true"
       show-scrollbar="false"
       scroll-with-animation="true"

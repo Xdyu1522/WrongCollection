@@ -57,27 +57,26 @@ page {
 /* 筛选标签 */
 .filter-tabs {
   display: flex;
-  overflow-x: scroll;
   padding: 16rpx 32rpx;
   white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* 隐藏Firefox滚动条 */
-}
-
-.filter-tabs::-webkit-scrollbar {
-  display: none; /* 隐藏Chrome等浏览器的滚动条 */
+  width: 100%;
+  justify-content: space-between; /* 平均分配空间 */
 }
 
 .filter-tab {
   display: inline-block;
-  padding: 12rpx 24rpx;
+  padding: 8rpx 16rpx; /* 减小内边距 */
   background: #ffffff;
-  border-radius: 32rpx;
-  margin-right: 16rpx;
-  font-size: 26rpx;
+  border-radius: 24rpx;
+  margin-right: 12rpx; /* 减小间距 */
+  font-size: 24rpx; /* 稍微减小字体 */
   color: #6b7280;
   border: 1rpx solid #e5e7eb;
-  flex-shrink: 0; /* 防止标签被压缩 */
+  flex-shrink: 0;
+  min-width: 100rpx; /* 减小最小宽度 */
+  text-align: center;
+  flex: 1; /* 让每个标签平均分配空间 */
+  max-width: 120rpx; /* 设置最大宽度 */
 }
 
 .filter-tab.active {
