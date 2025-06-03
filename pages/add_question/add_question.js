@@ -219,14 +219,18 @@ Page({
   // 使用照片
   usePhoto() {
     const that = this;
-    wx.showLoading({
-      title: '处理中...',
+    console.log('开始处理照片');
+    
+    // 先显示表单界面
+    this.setData({
+      showForm: true
     });
     
     // 获取图片信息
     wx.getImageInfo({
       src: that.data.photoSrc,
       success: function(imageInfo) {
+        console.log('获取图片信息成功');
         // 计算裁剪区域相对于原始图片的位置
         const originWidth = imageInfo.width;
         const originHeight = imageInfo.height;
@@ -245,69 +249,146 @@ Page({
         const ctx = wx.createCanvasContext('cropCanvas');
         
         // 为了确保裁剪准确，只将需要裁剪的区域绘制到canvas上
-        // canvas尺寸为300x400，需要按比例计算
         const canvasWidth = 300;
         const canvasHeight = 400;
         
-        // 计算裁剪区域占原图的比例
-        const sx = cropX / originWidth;
-        const sy = cropY / originHeight;
-        const sWidth = cropWidth / originWidth;
-        const sHeight = cropHeight / originHeight;
-        
-        // 在canvas上绘制需要裁剪的区域
-        ctx.drawImage(
-          that.data.photoSrc, 
-          cropX,           // 原图裁剪起点x
-          cropY,           // 原图裁剪起点y
-          cropWidth,       // 原图裁剪宽度
-          cropHeight,      // 原图裁剪高度
-          0,               // canvas起点x
-          0,               // canvas起点y
-          canvasWidth,     // canvas绘制宽度
-          canvasHeight     // canvas绘制高度
-        );
-        
-        // 提交绘制
-        ctx.draw(false, () => {
-          // 从canvas导出图片
+        // 绘制裁剪后的图片
+        ctx.drawImage(that.data.photoSrc, cropX, cropY, cropWidth, cropHeight, 0, 0, canvasWidth, canvasHeight);
+        ctx.draw(false, function() {
+          console.log('Canvas绘制完成');
+          // 将canvas内容转换为临时文件
           wx.canvasToTempFilePath({
             canvasId: 'cropCanvas',
-            x: 0,
-            y: 0,
-            width: canvasWidth,
-            height: canvasHeight,
-            destWidth: cropWidth, // 使用原始裁剪区域的尺寸
-            destHeight: cropHeight,
             success: function(res) {
-              // 更新裁剪后的图片
-              that.setData({
-                photoSrc: res.tempFilePath,
-                showForm: true // 显示表单
+              console.log('Canvas转图片成功');
+              // 显示 AI 识别加载提示
+              wx.showLoading({
+                title: '正在等待AI识别...',
+                mask: true
               });
-              wx.hideLoading();
+              
+              // 上传图片到服务器
+              wx.uploadFile({
+                url: 'http://localhost:5000/process_file',
+                filePath: res.tempFilePath,
+                name: 'file',
+                success: function(uploadRes) {
+                  console.log('上传成功，返回数据：', uploadRes.data);
+                  const result = JSON.parse(uploadRes.data);
+                  
+                  if (result.code === 0 && result.data.code === 0) {
+                    // 解析返回的数据
+                    const aiResult = JSON.parse(result.data.data);
+                    const questionData = JSON.parse(aiResult.data);
+                    console.log('AI识别结果：', questionData);
+                    
+                    // 检查是否包含题目
+                    if (questionData.contain_questions) {
+                      // 构建题目文本
+                      let titleText = questionData.question_text;
+                      
+                      // 处理选择题选项
+                      if (questionData.question_type === '选择题' && questionData.selections) {
+                        titleText += '\n\n选项：\n';
+                        for (const [key, value] of Object.entries(questionData.selections)) {
+                          titleText += `${key}. ${value}\n`;
+                        }
+                      }
+                      
+                      // 处理解答题的小问
+                      if (questionData.question_type === '解答题' && questionData.subquestions && questionData.subquestions.length > 0) {
+                        titleText += '\n\n小问：\n';
+                        questionData.subquestions.forEach((q, index) => {
+                          titleText += `${index + 1}. ${q}\n`;
+                        });
+                      }
+                      
+                      console.log('准备更新表单数据');
+                      // 先隐藏表单
+                      that.setData({
+                        showForm: false
+                      }, () => {
+                        console.log('表单已隐藏');
+                        // 然后更新数据并重新显示表单
+                        setTimeout(() => {
+                          console.log('开始更新数据');
+                          that.setData({
+                            formData: {
+                              title: titleText,
+                              questionType: questionData.question_type,
+                              subject: questionData.subject.main,
+                              correctAnswer: '',
+                              answerPhotoSrc: '',
+                              tags: [],
+                              errorReason: '',
+                              status: 'not-mastered',
+                              statusText: '未掌握'
+                            },
+                            showForm: true
+                          }, () => {
+                            console.log('数据更新完成');
+                            // 确保数据更新后再显示提示
+                            wx.hideLoading();
+                            setTimeout(() => {
+                              wx.showToast({
+                                title: '识别成功',
+                                icon: 'success',
+                                duration: 2000
+                              });
+                            }, 100);
+                          });
+                        }, 100);
+                      });
+                    } else {
+                      console.log('未识别到题目');
+                      wx.hideLoading();
+                      wx.showToast({
+                        title: '未识别到题目',
+                        icon: 'none',
+                        duration: 2000
+                      });
+                    }
+                  } else {
+                    console.log('识别失败：', result.msg);
+                    wx.hideLoading();
+                    wx.showToast({
+                      title: '识别失败：' + (result.msg || '未知错误'),
+                      icon: 'none',
+                      duration: 2000
+                    });
+                  }
+                },
+                fail: function(err) {
+                  console.log('上传失败：', err);
+                  wx.hideLoading();
+                  wx.showToast({
+                    title: '上传失败：' + err.errMsg,
+                    icon: 'none',
+                    duration: 2000
+                  });
+                },
+                complete: function() {
+                  console.log('上传完成');
+                }
+              });
             },
             fail: function(err) {
-              console.error("裁剪失败:", err);
-              wx.hideLoading();
+              console.log('Canvas转图片失败：', err);
               wx.showToast({
-                title: '处理失败',
-                icon: 'none'
+                title: '图片处理失败',
+                icon: 'none',
+                duration: 2000
               });
             }
           });
         });
       },
       fail: function(err) {
-        console.error("获取图片信息失败:", err);
-        wx.hideLoading();
+        console.log('获取图片信息失败：', err);
         wx.showToast({
-          title: '处理失败',
-          icon: 'none'
-        });
-        // 如果裁剪失败，仍然显示表单
-        that.setData({
-      showForm: true
+          title: '获取图片信息失败',
+          icon: 'none',
+          duration: 2000
         });
       }
     });
@@ -413,7 +494,7 @@ Page({
     }
     
     // 验证正确答案
-    if (formData.questionType !== '大题' && !formData.correctAnswer.trim()) {
+    if (formData.questionType !== '解答题' && !formData.correctAnswer.trim()) {
       wx.showToast({
         title: '请输入正确答案',
         icon: 'none'
@@ -421,7 +502,7 @@ Page({
       return
     }
     
-    if (formData.questionType === '大题' && !formData.answerPhotoSrc) {
+    if (formData.questionType === '解答题' && !formData.answerPhotoSrc) {
       wx.showToast({
         title: '请拍照添加答案',
         icon: 'none'

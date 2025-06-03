@@ -8,35 +8,55 @@ API 端点:
     功能：处理文件上传并返回题目内容
     
 调用示例:
-    1. 使用 curl:
-    ```bash
-    curl -X POST http://localhost:5000/process_file \
-      -F "file=@/path/to/your/file.jpg"
+    1. 使用微信小程序:
+    ```javascript
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['camera'],
+      success: function(res) {
+        const tempFilePath = res.tempFilePaths[0];
+        wx.uploadFile({
+          url: 'http://your-server:5000/process_file',
+          filePath: tempFilePath,
+          name: 'file',
+          success: function(uploadRes) {
+            const data = JSON.parse(uploadRes.data);
+            console.log(data);
+          }
+        });
+      }
+    });
     ```
 
     2. 使用 Python requests:
     ```python
     import requests
     
+    # 准备文件
+    file_path = 'path/to/your/image.jpg'
+    
+    # 发送请求
     url = 'http://localhost:5000/process_file'
     files = {
-        'file': open('path/to/your/file.jpg', 'rb')
+        'file': open(file_path, 'rb')
     }
-    response = requests.post(url, files=files)
-    print(response.json())
-    ```
-
-    3. 使用 JavaScript fetch:
-    ```javascript
-    const formData = new FormData();
-    formData.append('file', fileInput.files[0]);
     
-    fetch('http://localhost:5000/process_file', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => console.log(data));
+    try:
+        response = requests.post(url, files=files)
+        result = response.json()
+        
+        # 检查响应
+        if result['code'] == 0:
+            print('处理成功：', result['data'])
+        else:
+            print('处理失败：', result['msg'])
+            
+    except Exception as e:
+        print('请求发生错误：', str(e))
+    finally:
+        # 确保文件被关闭
+        files['file'].close()
     ```
 
 返回格式:
@@ -65,6 +85,8 @@ import os
 import json
 import requests
 from flask import Flask, request, jsonify
+import base64
+from io import BytesIO
 
 app = Flask(__name__)
 
@@ -73,12 +95,14 @@ def load_config():
     with open('config.json', 'r') as f:
         return json.load(f)
 
-def upload_file(file_path):
+def upload_file(file_stream, filename, content_type):
     """
     上传文件到API
     
     Args:
-        file_path (str): 要上传的文件路径
+        file_stream: 文件流
+        filename: 文件名
+        content_type: 文件类型
     
     Returns:
         dict: API的响应结果
@@ -91,12 +115,12 @@ def upload_file(file_path):
         'Authorization': f'Bearer {user_token}'
     }
     
-    with open(file_path, 'rb') as f:
-        files = {
-            'file': (os.path.basename(file_path), f)
-        }
-        response = requests.post(url, headers=headers, files=files)
-        return response.json()
+    files = {
+        'file': (filename, file_stream, content_type)
+    }
+    
+    response = requests.post(url, headers=headers, files=files)
+    return response.json()
 
 def get_question_content(file_id):
     """
@@ -131,6 +155,7 @@ def get_question_content(file_id):
 def process_file():
     """
     处理文件上传和获取题目内容的完整流程
+    支持微信小程序的文件上传方式
     """
     try:
         # 检查是否有文件上传
@@ -149,18 +174,18 @@ def process_file():
                 'data': None
             })
             
-        # 保存上传的文件到临时目录
-        temp_path = os.path.join('temp', file.filename)
-        os.makedirs('temp', exist_ok=True)
-        file.save(temp_path)
-        
         try:
             # 步骤1：上传文件
-            upload_result = upload_file(temp_path)
-            if upload_result['code'] != 0:
+            upload_result = upload_file(
+                file.stream,
+                file.filename,
+                file.content_type
+            )
+            
+            if upload_result.get('code') != 0:
                 return jsonify({
                     'code': 2,
-                    'msg': f'文件上传失败: {upload_result["msg"]}',
+                    'msg': f'文件上传失败: {upload_result.get("msg", "未知错误")}',
                     'data': None
                 })
             
@@ -175,11 +200,13 @@ def process_file():
                 'msg': 'success',
                 'data': question_result
             })
-            
-        finally:
-            # 清理临时文件
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
+                
+        except Exception as e:
+            return jsonify({
+                'code': 2,
+                'msg': f'文件处理失败: {str(e)}',
+                'data': None
+            })
                 
     except Exception as e:
         return jsonify({
