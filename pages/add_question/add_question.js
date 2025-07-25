@@ -270,7 +270,7 @@ Page({
               // 上传图片到服务器
               wx.uploadFile({
                 url: 'http://localhost:5000/process_file',
-                filePath: res.tempFilePath,
+                filePath: that.data.photoSrc,
                 name: 'file',
                 success: function(uploadRes) {
                   console.log('上传成功，返回数据：', uploadRes.data);
@@ -278,8 +278,10 @@ Page({
                   
                   if (result.code === 0 && result.data.code === 0) {
                     // 解析返回的数据
+                    console.log(result.data.data)
+                    console.log(typeof result.data.data)
                     const aiResult = JSON.parse(result.data.data);
-                    const questionData = JSON.parse(aiResult.data);
+                    const questionData = aiResult.output
                     console.log('AI识别结果：', questionData);
                     
                     // 检查是否包含题目
@@ -502,13 +504,13 @@ Page({
       return
     }
     
-    if (formData.questionType === '解答题' && !formData.answerPhotoSrc) {
-      wx.showToast({
-        title: '请拍照添加答案',
-        icon: 'none'
-      })
-      return
-    }
+    // if (formData.questionType === '解答题' && !formData.answerPhotoSrc) {
+    //   wx.showToast({
+    //     title: '请拍照添加答案',
+    //     icon: 'none'
+    //   })
+    //   return
+    // }
     
     // 错误原因现在是选填的，不需要验证
 
