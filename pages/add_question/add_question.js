@@ -1,5 +1,6 @@
 // add_question.js
 const app = getApp()
+const util = require('../../utils/util.js')
 
 Page({
   data: {
@@ -366,7 +367,7 @@ Page({
                   wx.showToast({
                     title: '上传失败：' + err.errMsg,
                     icon: 'none',
-                    duration: 2000
+                    duration: 10000
                   });
                 },
                 complete: function() {
@@ -527,13 +528,13 @@ Page({
     }
 
     // 获取现有错题列表
-    const questions = wx.getStorageSync('questions') || []
+    const questions = util.storage.get('questions', [])
     
     // 添加新错题
     questions.unshift(questionData)
     
     // 保存到本地存储
-    wx.setStorageSync('questions', questions)
+    util.storage.set('questions', questions)
     
     // 更新全局数据
     if (app.globalData.questions) {
@@ -553,20 +554,9 @@ Page({
     })
   },
 
-  // 格式化日期
+  // 使用util中的日期格式化方法
   formatDate(date) {
-    const today = new Date()
-    const yesterday = new Date(today)
-    yesterday.setDate(yesterday.getDate() - 1)
-    
-    if (date.toDateString() === today.toDateString()) {
-      return '今天'
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      return '昨天'
-    } else {
-      const diff = Math.floor((today - date) / (1000 * 60 * 60 * 24))
-      return `${diff}天前`
-    }
+    return util.formatRelativeDate(date)
   },
 
   // 裁剪框触摸开始
@@ -822,4 +812,4 @@ Page({
       }
     });
   },
-}) 
+})

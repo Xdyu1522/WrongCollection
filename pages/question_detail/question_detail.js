@@ -1,4 +1,5 @@
 const app = getApp()
+const util = require('../../utils/util.js')
 
 Page({
   /**
@@ -49,7 +50,7 @@ Page({
    * 加载错题数据
    */
   loadQuestion(id) {
-    const questions = wx.getStorageSync('questions') || []
+    const questions = util.storage.get('questions', [])
     const question = questions.find(q => q.id === id)
     
     if (question) {
@@ -217,7 +218,7 @@ Page({
     })
     
     // 保存到本地存储
-    wx.setStorageSync('questions', updatedQuestions)
+    util.storage.set('questions', updatedQuestions)
     
     // 更新全局数据
     app.globalData.questions = updatedQuestions
@@ -240,12 +241,7 @@ Page({
    * 获取状态文本
    */
   getStatusText(status) {
-    const statusMap = {
-      'not-mastered': '未掌握',
-      'review': '需复习',
-      'mastered': '已掌握'
-    }
-    return statusMap[status] || '未掌握'
+    return util.getStatusText(status)
   },
 
   /**
@@ -532,4 +528,4 @@ Page({
       }
     });
   }
-}) 
+})

@@ -1,5 +1,6 @@
 // profile.js
 const app = getApp()
+const util = require('../../utils/util.js')
 
 Page({
   data: {
@@ -64,7 +65,7 @@ Page({
     this.setData({ userInfo })
     // 更新全局数据
     app.globalData.userInfo = userInfo
-    wx.setStorageSync('userInfo', userInfo)
+    util.storage.set('userInfo', userInfo)
   },
   
   // 导航到学习报告
@@ -129,4 +130,4 @@ Page({
       }
     })
   }
-}) 
+})

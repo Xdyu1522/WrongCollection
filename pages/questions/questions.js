@@ -1,5 +1,6 @@
 // questions.js
 const app = getApp()
+const util = require('../../utils/util.js')
 
 Page({
   data: {
@@ -26,7 +27,7 @@ Page({
   
   // 加载错题数据
   loadQuestions() {
-    const questions = wx.getStorageSync('questions') || []
+    const questions = util.storage.get('questions', [])
     
     // 设置错题总数
     this.setData({
@@ -88,12 +89,7 @@ Page({
   
   // 获取状态文本
   getStatusText(status) {
-    const statusMap = {
-      'not-mastered': '未掌握',
-      'review': '需复习',
-      'mastered': '已掌握'
-    }
-    return statusMap[status] || status
+    return util.getStatusText(status)
   },
   
   // 搜索处理
@@ -157,7 +153,7 @@ Page({
         if (res.confirm) {
           let questions = wx.getStorageSync('questions') || [];
           questions = questions.filter(q => q.id !== id);
-          wx.setStorageSync('questions', questions);
+          util.storage.set('questions', questions);
           
           // 更新页面数据及计数
           this.setData({
@@ -177,4 +173,4 @@ Page({
       }
     });
   }
-}) 
+})

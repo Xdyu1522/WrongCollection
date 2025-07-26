@@ -1,10 +1,11 @@
 // app.js
+const util = require('./utils/util.js')
 App({
   onLaunch() {
     // 展示本地存储能力
-    const logs = wx.getStorageSync('logs') || []
+    const logs = util.storage.get('logs', [])
     logs.unshift(Date.now())
-    wx.setStorageSync('logs', logs)
+    util.storage.set('logs', logs)
 
     // 检查登录状态
     this.checkLoginStatus()
@@ -16,7 +17,7 @@ App({
   },
 
   checkLoginStatus() {
-    const userInfo = wx.getStorageSync('userInfo')
+    const userInfo = util.storage.get('userInfo')
     if (userInfo) {
       this.globalData.userInfo = userInfo
       this.globalData.isLoggedIn = true
@@ -32,7 +33,7 @@ App({
         desc: '用于完善用户资料',
         success: (res) => {
           const userInfo = res.userInfo
-          wx.setStorageSync('userInfo', userInfo)
+          util.storage.set('userInfo', userInfo)
           this.globalData.userInfo = userInfo
           this.globalData.isLoggedIn = true
           resolve(userInfo)
@@ -46,7 +47,7 @@ App({
 
   // 退出登录方法
   logout() {
-    wx.removeStorageSync('userInfo')
+    util.storage.remove('userInfo')
     this.globalData.userInfo = null
     this.globalData.isLoggedIn = false
   }

@@ -1,4 +1,5 @@
 // index.js
+const util = require('../../utils/util.js')
 const defaultAvatarUrl = 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
 
 Page({
@@ -99,7 +100,7 @@ Page({
     
     try {
       // 读取所有错题
-      const allMistakes = wx.getStorageSync('mistakes') || '[]';
+      const allMistakes = util.storage.get('mistakes', '[]');
       const mistakesArray = JSON.parse(allMistakes);
       
       // 处理统计信息
@@ -156,32 +157,12 @@ Page({
   // 计算时间标签
   getTimeLabel(timestamp) {
     if (!timestamp) return '未知';
-    
-    const now = new Date().getTime();
-    const diff = now - timestamp;
-    
-    // 转换为秒、分钟、小时、天
-    const diffSeconds = Math.floor(diff / 1000);
-    const diffMinutes = Math.floor(diffSeconds / 60);
-    const diffHours = Math.floor(diffMinutes / 60);
-    const diffDays = Math.floor(diffHours / 24);
-    
-    if (diffDays === 0) {
-      if (diffHours === 0) {
-        if (diffMinutes === 0) {
-          return '刚刚';
-        }
-        return `${diffMinutes}分钟前`;
-      }
-      return '今天';
-    } else if (diffDays === 1) {
-      return '昨天';
-    } else if (diffDays < 7) {
-      return `${diffDays}天前`;
-    } else {
-      const date = new Date(timestamp);
-      return `${date.getMonth() + 1}月${date.getDate()}日`;
-    }
+    return util.formatRelativeDate(new Date(timestamp));
+  },
+
+  // 获取状态文本
+  getStatusText(status) {
+    return util.getStatusText(status);
   },
   
   // 选择头像事件
