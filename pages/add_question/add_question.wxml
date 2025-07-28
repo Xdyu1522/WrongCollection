@@ -105,9 +105,9 @@
             <view class="type-item {{formData.questionType === '填空题' ? 'selected' : ''}}" 
                   data-type="填空题" 
                   bindtap="onQuestionTypeSelect">填空题</view>
-            <view class="type-item {{formData.questionType === '大题' ? 'selected' : ''}}" 
-                  data-type="大题" 
-                  bindtap="onQuestionTypeSelect">大题</view>
+            <view class="type-item {{formData.questionType === '解答题' ? 'selected' : ''}}" 
+                  data-type="解答题" 
+                  bindtap="onQuestionTypeSelect">解答题</view>
           </view>
         </view>
         
@@ -115,6 +115,17 @@
         <view class="form-item">
           <text class="form-label">错题内容</text>
           <input class="form-input" placeholder="请输入错题内容" value="{{formData.title}}" bindinput="onTitleInput" />
+        </view>
+
+        <!-- 选择题选项 -->
+        <view class="form-item" wx:if="{{formData.questionType === '选择题' && Object.keys(formData.selections).length > 0}}">
+          <text class="form-label">选项列表</text>
+          <view class="options-list">
+            <view class="option-item" wx:for="{{Object.keys(formData.selections)}}" wx:key="*this">
+              <text class="option-label">【选项{{item}}】：</text>
+              <input class="option-input" placeholder="请输入选项内容" value="{{formData.selections[item]}}" bindinput="onOptionInput" data-key="{{item}}" />
+            </view>
+          </view>
         </view>
         
         <!-- 学科选择 -->
@@ -191,4 +202,4 @@
 </view> 
 
 <!-- 隐藏的canvas用于裁剪图片 -->
-<canvas canvas-id="cropCanvas" style="width: 300px; height: 400px; position: absolute; left: -1000px; top: -1000px;"></canvas> 
+<canvas canvas-id="cropCanvas" style="width: 300px; height: 400px; position: absolute; left: -1000px; top: -1000px;"></canvas>

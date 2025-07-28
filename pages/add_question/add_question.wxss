@@ -313,10 +313,36 @@ page {
 .form-input {
   width: 100%;
   height: 80rpx;
-  border: 1rpx solid #ddd;
-  border-radius: 8rpx;
-  padding: 0 20rpx;
-  font-size: 28rpx;
+  padding: 0 30rpx;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+  box-sizing: border-box;
+}
+
+.options-list {
+  margin-top: 20rpx;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.option-key {
+  width: 60rpx;
+  font-size: 32rpx;
+  color: #4b5563;
+}
+
+.option-input {
+  flex: 1;
+  height: 80rpx;
+  padding: 0 30rpx;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 16rpx;
+  font-size: 32rpx;
   box-sizing: border-box;
 }
 
@@ -348,6 +374,10 @@ page {
   font-size: 24rpx;
   color: #666;
   transition: all 0.3s ease;
+}
+.tag-item.selected {
+  background-color: #22c55e;
+  color: white;
 }
 
 .tag-item.selected {
@@ -507,4 +537,4 @@ page {
   font-size: 24rpx;
   border-radius: 30rpx;
   margin-top: 10rpx;
-} 
+}

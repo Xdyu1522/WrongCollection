@@ -39,7 +39,8 @@ Page({
       correctAnswer: '',      // 正确答案
       answerPhotoSrc: '',     // 答案图片路径
       status: 'not-mastered',
-      statusText: '未掌握'
+      statusText: '未掌握',
+      selections: {}          // 选择题选项
     },
     // 是否正在拍摄答案照片
     isAnswerCapture: false,
@@ -61,6 +62,7 @@ Page({
 
   // 检查相机权限
   checkCameraAuth() {
+    const that = this;
     wx.getSetting({
       success: (res) => {
         if (!res.authSetting['scope.camera']) {
@@ -154,10 +156,10 @@ Page({
               cropFrameHeight: imgShowHeight
             });
           },
-          fail: function(err) {
+          fail: (err) => {
             console.error("获取图片信息失败:", err);
             // 备用方案，使用容器尺寸
-            that.setData({
+            this.setData({
               imageWidth: containerRect.width,
               imageHeight: containerRect.height,
               cropFrameTop: 0,
@@ -221,62 +223,61 @@ Page({
   usePhoto() {
     const that = this;
     console.log('开始处理照片');
-    
-    // 先显示表单界面
-    this.setData({
-      showForm: true
-    });
-    
-    // 获取图片信息
-    wx.getImageInfo({
-      src: that.data.photoSrc,
-      success: function(imageInfo) {
-        console.log('获取图片信息成功');
-        // 计算裁剪区域相对于原始图片的位置
-        const originWidth = imageInfo.width;
-        const originHeight = imageInfo.height;
-        
-        // 计算图片在显示时的缩放比例
-        const scaleX = originWidth / that.data.imageWidth;
-        const scaleY = originHeight / that.data.imageHeight;
-        
-        // 计算裁剪区域在原图中的位置
-        const cropX = that.data.cropFrameLeft * scaleX;
-        const cropY = that.data.cropFrameTop * scaleY;
-        const cropWidth = that.data.cropFrameWidth * scaleX;
-        const cropHeight = that.data.cropFrameHeight * scaleY;
-        
-        // 创建canvas上下文
-        const ctx = wx.createCanvasContext('cropCanvas');
-        
-        // 为了确保裁剪准确，只将需要裁剪的区域绘制到canvas上
-        const canvasWidth = 300;
-        const canvasHeight = 400;
-        
-        // 绘制裁剪后的图片
-        ctx.drawImage(that.data.photoSrc, cropX, cropY, cropWidth, cropHeight, 0, 0, canvasWidth, canvasHeight);
-        ctx.draw(false, function() {
-          console.log('Canvas绘制完成');
-          // 将canvas内容转换为临时文件
-          wx.canvasToTempFilePath({
-            canvasId: 'cropCanvas',
-            success: function(res) {
-              console.log('Canvas转图片成功');
-              // 显示 AI 识别加载提示
-              wx.showLoading({
-                title: '正在等待AI识别...',
-                mask: true
-              });
-              
-              // 上传图片到服务器
-              wx.uploadFile({
-                url: 'http://localhost:5000/process_file',
-                filePath: that.data.photoSrc,
-                name: 'file',
-                success: function(uploadRes) {
+      
+      // 先显示表单界面
+      that.setData({
+        showForm: true
+      });
+      
+      // 获取图片信息
+      wx.getImageInfo({
+        src: that.data.photoSrc,
+        success: (imageInfo) => {
+          console.log('获取图片信息成功');
+          // 计算裁剪区域相对于原始图片的位置
+          const originWidth = imageInfo.width;
+          const originHeight = imageInfo.height;
+          
+          // 计算图片在显示时的缩放比例
+          const scaleX = originWidth / that.data.imageWidth;
+          const scaleY = originHeight / that.data.imageHeight;
+          
+          // 计算裁剪区域在原图中的位置
+          const cropX = that.data.cropFrameLeft * scaleX;
+          const cropY = that.data.cropFrameTop * scaleY;
+          const cropWidth = that.data.cropFrameWidth * scaleX;
+          const cropHeight = that.data.cropFrameHeight * scaleY;
+          
+          // 创建canvas上下文
+          const ctx = wx.createCanvasContext('cropCanvas');
+          
+          // 为了确保裁剪准确，只将需要裁剪的区域绘制到canvas上
+          const canvasWidth = 300;
+          const canvasHeight = 400;
+          
+          // 绘制裁剪后的图片
+          ctx.drawImage(that.data.photoSrc, cropX, cropY, cropWidth, cropHeight, 0, 0, canvasWidth, canvasHeight);
+          ctx.draw(false, () => {
+            console.log('Canvas绘制完成');
+            // 将canvas内容转换为临时文件
+            wx.canvasToTempFilePath({
+              canvasId: 'cropCanvas',
+              success: (res) => {
+                console.log('Canvas转图片成功');
+                // 显示 AI 识别加载提示
+                wx.showLoading({
+                  title: '正在等待AI识别...',
+                  mask: true
+                });
+                
+                // 上传图片到服务器
+                wx.uploadFile({
+                  url: 'http://localhost:5000/process_file',
+                  filePath: this.data.photoSrc,
+                  name: 'file',
+                success: (uploadRes) => {
                   console.log('上传成功，返回数据：', uploadRes.data);
                   const result = JSON.parse(uploadRes.data);
-                  
                   if (result.code === 0 && result.data.code === 0) {
                     // 解析返回的数据
                     console.log(result.data.data)
@@ -285,6 +286,12 @@ Page({
                     const questionData = aiResult.output
                     console.log('AI识别结果：', questionData);
                     
+                    // 处理填空题格式，添加下划线
+                    if (questionData.question_type === '填空题') {
+                      // 使用正则表达式匹配空缺处并替换为下划线
+                      questionData.question_text = questionData.question_text.replace(/\s*_+\s*/g, ' ___ ').replace(/___+/g, '___');
+                    }
+                    
                     // 检查是否包含题目
                     if (questionData.contain_questions) {
                       // 构建题目文本
@@ -292,10 +299,14 @@ Page({
                       
                       // 处理选择题选项
                       if (questionData.question_type === '选择题' && questionData.selections) {
-                        titleText += '\n\n选项：\n';
+                        // 保存选项数据到formData
+                        const selections = {};
                         for (const [key, value] of Object.entries(questionData.selections)) {
-                          titleText += `${key}. ${value}\n`;
+                          selections[key] = value;
                         }
+                        this.setData({
+                        'formData.selections': selections
+                      });
                       }
                       
                       // 处理解答题的小问
@@ -308,14 +319,14 @@ Page({
                       
                       console.log('准备更新表单数据');
                       // 先隐藏表单
-                      that.setData({
+                      this.setData({
                         showForm: false
                       }, () => {
                         console.log('表单已隐藏');
                         // 然后更新数据并重新显示表单
                         setTimeout(() => {
                           console.log('开始更新数据');
-                          that.setData({
+                          this.setData({
                             formData: {
                               title: titleText,
                               questionType: questionData.question_type,
@@ -361,7 +372,7 @@ Page({
                     });
                   }
                 },
-                fail: function(err) {
+                fail: (err) => {
                   console.log('上传失败：', err);
                   wx.hideLoading();
                   wx.showToast({
@@ -370,12 +381,12 @@ Page({
                     duration: 10000
                   });
                 },
-                complete: function() {
+                complete: () => {
                   console.log('上传完成');
                 }
               });
             },
-            fail: function(err) {
+            fail: (err) => {
               console.log('Canvas转图片失败：', err);
               wx.showToast({
                 title: '图片处理失败',
@@ -386,7 +397,7 @@ Page({
           });
         });
       },
-      fail: function(err) {
+      fail: (err) => {
         console.log('获取图片信息失败：', err);
         wx.showToast({
           title: '获取图片信息失败',
@@ -458,6 +469,17 @@ Page({
       'formData.correctAnswer': e.detail.value
     });
   },
+
+  // 选择题选项输入
+  onOptionInput(e) {
+      const key = e.currentTarget.dataset.key;
+      const value = e.detail.value;
+      const selections = {...this.data.formData.selections};
+      selections[key] = value;
+      this.setData({
+        'formData.selections': selections
+      });
+    },
   
   // 拍摄答案照片
   takeAnswerPhoto() {

@@ -3,3 +3,5 @@ project.config.json
 project.private.config.json
 server/config.json
 server/test/
+*.md
+*.pdf

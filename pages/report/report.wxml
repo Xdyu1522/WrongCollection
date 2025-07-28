@@ -1,2 +1,63 @@
 <!--pages/report/report.wxml-->
-<text>pages/report/report.wxml</text>
+<view class="container">
+  <!-- 加载中状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 无数据状态 -->
+  <view wx:elif="{{noData}}" class="no-data-container">
+    <text class="no-data-text">暂无错题数据，快去添加错题吧！</text>
+  </view>
+
+  <!-- 统计数据区域 -->
+  <view wx:else class="stats-container">
+    <view class="page-title">学习报告</view>
+
+    <!-- 总体统计卡片 -->
+    <view class="stats-card">
+      <view class="stats-item">
+        <text class="stats-label">总题数</text>
+        <text class="stats-value">{{stats.total}}</text>
+      </view>
+      <view class="stats-item">
+        <text class="stats-label">已掌握</text>
+        <text class="stats-value mastered">{{stats.mastered}}</text>
+      </view>
+      <view class="stats-item">
+        <text class="stats-label">复习中</text>
+        <text class="stats-value reviewing">{{stats.reviewing}}</text>
+      </view>
+      <view class="stats-item">
+        <text class="stats-label">未掌握</text>
+        <text class="stats-value unmastered">{{stats.unmastered}}</text>
+      </view>
+    </view>
+
+    <!-- 掌握程度分布 -->
+    <view class="chart-container">
+      <text class="section-title">掌握程度分布</text>
+      <view class="mastery-list">
+        <view wx:for="{{masteryData}}" wx:key="index" class="mastery-item">
+          <text class="mastery-name">{{item.name}}</text>
+          <view class="progress-container">
+            <view class="progress-bar" style="width: {{item.value/stats.total*100}}%" data-index="{{index}}"></view>
+          </view>
+          <text class="mastery-value">{{item.value}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 学科分布 -->
+    <view class="chart-container">
+      <text class="section-title">学科分布</text>
+      <view class="subject-list">
+        <view wx:for="{{subjectData}}" wx:key="index" class="subject-item">
+          <text class="subject-name">{{item.name}}</text>
+          <text class="subject-value">{{item.value}}题</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
