@@ -297,9 +297,42 @@ button.avatar-wrapper::after {
   align-items: center;
   justify-content: center;
   box-shadow: 0 8rpx 24rpx rgba(34, 197, 94, 0.4);
-  z-index: 100;
-  font-size: 56rpx;
+  font-size: 48rpx;
   color: white;
+  z-index: 1000;
+}
+
+/* 调试按钮 */
+.debug-btn {
+  position: fixed;
+  left: 40rpx;
+  bottom: 80rpx;
+  padding: 20rpx;
+  border-radius: 16rpx;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  z-index: 99;
+  font-size: 24rpx;
+  color: #64748b;
+}
+
+.debug-btn-weekly {
+  position: fixed;
+  left: 40rpx;
+  bottom: 180rpx;
+  padding: 20rpx;
+  border-radius: 16rpx;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  z-index: 99;
+  font-size: 24rpx;
+  color: #64748b;
 }
 
 .stats-separator {

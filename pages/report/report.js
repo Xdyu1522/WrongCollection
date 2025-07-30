@@ -46,10 +46,19 @@ Page({
       return;
     }
 
-    // 计算不同掌握程度的题目数量
-    const mastered = questions.filter(q => q.mastery === 2).length;
-    const reviewing = questions.filter(q => q.mastery === 1).length;
-    const unmastered = questions.filter(q => q.mastery === 0).length;
+    // 计算不同掌握程度的题目数量 - 兼容不同的状态字段格式
+    const mastered = questions.filter(q => {
+      const status = q.status || q.mastery;
+      return status === 'mastered' || status === 2;
+    }).length;
+    const reviewing = questions.filter(q => {
+      const status = q.status || q.mastery;
+      return status === 'review' || status === 'reviewing' || status === 1;
+    }).length;
+    const unmastered = questions.filter(q => {
+      const status = q.status || q.mastery;
+      return status === 'not-mastered' || status === 'pending' || status === 0;
+    }).length;
 
     // 按学科统计
     const subjectMap = {};

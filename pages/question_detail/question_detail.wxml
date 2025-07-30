@@ -34,32 +34,32 @@
       </view>
 
       <!-- 答案区域 - 根据不同类型显示不同形式 -->
-      <view class="answer-section" wx:if="{{question.answerType}}">
+      <view class="answer-section" wx:if="{{editForm.answerType}}">
         <view class="section-header">
           <text class="section-title">答案</text>
         </view>
         
         <!-- 选择题和填空题答案 - 展示为字符串 -->
-        <view class="answer-content" wx:if="{{question.answerType === 'choice' || question.answerType === 'fill'}}">
+        <view class="answer-content" wx:if="{{editForm.answerType === 'choice' || editForm.answerType === 'fill'}}">
           <view class="text-string-answer">
             <text class="answer-label">答案：</text>
-            <text class="answer-value">{{question.answer}}</text>
+            <text class="answer-value">{{editForm.answer}}</text>
           </view>
         </view>
         
-        <!-- 解答题答案 - 展示图片 -->
-        <view class="answer-content" wx:elif="{{question.answerType === 'calculation' || question.answerType === 'proof' || question.answerType === 'normal'}}">
-          <view class="image-answer" wx:if="{{question.answerImage}}">
-            <image class="answer-image" src="{{question.answerImage}}" mode="widthFix" bindtap="previewAnswerImage"></image>
+        <!-- 解答题答案 - 展示图片或文字 -->
+        <view class="answer-content" wx:elif="{{editForm.answerType === 'normal'}}">
+          <view class="image-answer" wx:if="{{editForm.answerImage}}">
+            <image class="answer-image" src="{{editForm.answerImage}}" mode="widthFix" bindtap="previewAnswerImage"></image>
           </view>
           <view class="text-answer" wx:else>
-            <rich-text nodes="{{question.answer}}"></rich-text>
+            <text>{{editForm.answer || '暂无答案'}}</text>
           </view>
         </view>
         
         <!-- 默认答案展示 -->
         <view class="answer-content" wx:else>
-          <text>{{question.answer || '暂无答案'}}</text>
+          <text>{{editForm.answer || '暂无答案'}}</text>
         </view>
       </view>
 

@@ -10,6 +10,7 @@ Page({
     isPreview: false,
     photoSrc: '',
     hasTakePhoto: false,
+    answerInputMode: 'text', // 'text' or 'image'
     // 裁剪框相关数据
     cropFrameTop: 50,
     cropFrameLeft: 50,
@@ -36,8 +37,9 @@ Page({
       tags: [],
       errorReason: '',
       questionType: '选择题', // 默认选择题
-      correctAnswer: '',      // 正确答案
-      answerPhotoSrc: '',     // 答案图片路径
+      answerType: 'choice',   // 答案类型：choice/fill/normal
+      answer: '',             // 统一答案字段
+      answerImage: '',        // 答案图片路径
       status: 'not-mastered',
       statusText: '未掌握',
       selections: {}          // 选择题选项
@@ -458,15 +460,65 @@ Page({
   // 选择题目类型
   onQuestionTypeSelect(e) {
     const type = e.currentTarget.dataset.type;
+    let answerType = 'choice';
+    
+    if (type === '填空题') {
+      answerType = 'fill';
+    } else if (type === '解答题') {
+      answerType = 'normal';
+    }
+    
+    const resetData = {
+      'formData.questionType': type,
+      'formData.answerType': answerType,
+      'formData.answer': '',
+      'formData.answerImage': '',
+      'formData.selections': {}
+    };
+    
+    // 解答题特有字段重置
+    if (type === '解答题') {
+      resetData.answerInputMode = 'text';
+    }
+    
+    this.setData(resetData);
+  },
+  
+  // 设置答案输入模式
+  setAnswerInputMode(e) {
+    const mode = e.currentTarget.dataset.mode;
     this.setData({
-      'formData.questionType': type
+      answerInputMode: mode
+    });
+  },
+  
+  // 文字答案输入处理
+  onAnswerTextInput(e) {
+    this.setData({
+      'formData.answer': e.detail.value
+    });
+  },
+  
+  // 从相册选择答案图片
+  chooseAnswerFromAlbum() {
+    const that = this;
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album'],
+      success(res) {
+        const tempFilePaths = res.tempFilePaths;
+        that.setData({
+          'formData.answerImage': tempFilePaths[0]
+        });
+      }
     });
   },
   
   // 正确答案输入
   onCorrectAnswerInput(e) {
     this.setData({
-      'formData.correctAnswer': e.detail.value
+      'formData.answer': e.detail.value
     });
   },
 
@@ -488,11 +540,31 @@ Page({
       showForm: false
     });
   },
-  
-  // 重新拍摄答案照片
+
+  // 拍摄答案照片完成
+  captureAnswerPhoto() {
+    const ctx = wx.createCameraContext();
+    const that = this;
+    ctx.takePhoto({
+      quality: 'high',
+      success: (res) => {
+        that.setData({
+          'formData.answerImage': res.tempImagePath,
+          isAnswerCapture: false,
+          showForm: true
+        });
+      },
+      fail: () => {
+        wx.showToast({ title: '拍摄失败', icon: 'none' });
+        that.setData({ isAnswerCapture: false, showForm: true });
+      }
+    });
+  },
+    
+    // 重新拍摄答案照片
   retakeAnswerPhoto() {
     this.setData({
-      'formData.answerPhotoSrc': ''
+      'formData.answerImage': ''
     });
     this.takeAnswerPhoto();
   },
@@ -519,7 +591,7 @@ Page({
     }
     
     // 验证正确答案
-    if (formData.questionType !== '解答题' && !formData.correctAnswer.trim()) {
+    if (formData.questionType !== '解答题' && !formData.answer.trim()) {
       wx.showToast({
         title: '请输入正确答案',
         icon: 'none'
@@ -546,6 +618,7 @@ Page({
       id: Date.now(), // 使用时间戳作为唯一ID
       ...formData,
       date,
+      timestamp: Date.now(), // 添加时间戳用于统计
       image: photoSrc
     }
 

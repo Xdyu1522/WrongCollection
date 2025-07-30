@@ -16,7 +16,7 @@
     <!-- 筛选标签 -->
     <scroll-view 
       class="filter-tabs" 
-      scroll-x="false" 
+      scroll-x="true" 
       enhanced="true"
       show-scrollbar="false"
       scroll-with-animation="true"
@@ -100,4 +100,4 @@
   <view class="add-btn" bindtap="navigateToAdd">
     <text class="iconfont icon-add"></text>
   </view>
-</view> 
+</view>

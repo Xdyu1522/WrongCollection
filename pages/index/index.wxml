@@ -109,5 +109,9 @@
   <!-- 添加按钮 -->
   <view class="add-btn" bindtap="navigateToCamera">📷</view>
   
+  <!-- 调试按钮（开发时使用） -->
+  <view class="debug-btn" bindtap="debugData">调试数据</view>
+  <view class="debug-btn debug-btn-weekly" bindtap="debugWeeklyData">调试每周数据</view>
+  
   <!-- 底部导航栏（可以使用自定义tabbar或通过app.json配置） -->
 </view>

@@ -152,29 +152,41 @@
           </view>
         </view>
         
-        <!-- 正确答案 -->
+        <!-- 答案内容 -->
         <view class="form-item">
-          <text class="form-label">正确答案</text>
+          <text class="form-label">答案内容</text>
           
           <!-- 选择题或填空题的文本输入 -->
           <block wx:if="{{formData.questionType === '选择题' || formData.questionType === '填空题'}}">
-            <input class="form-input" placeholder="请输入正确答案" value="{{formData.correctAnswer}}" bindinput="onCorrectAnswerInput" />
+            <input class="form-input" placeholder="请输入正确答案" value="{{formData.answer}}" bindinput="onCorrectAnswerInput" />
           </block>
           
-          <!-- 大题的拍照功能 -->
-          <block wx:if="{{formData.questionType === '大题'}}">
-            <view class="answer-photo-container">
-              <block wx:if="{{!formData.answerPhotoSrc}}">
-                <view class="add-answer-btn" bindtap="takeAnswerPhoto">
-                  <text class="add-icon">+</text>
-                  <text>拍照添加答案</text>
+          <!-- 解答题答案输入 -->
+          <block wx:if="{{formData.questionType === '解答题'}}">
+            <view class="tab-container">
+  <view class="tab-item {{answerInputMode === 'text' ? 'active' : ''}}" bindtap="setAnswerInputMode" data-mode="text">文字答案</view>
+  <view class="tab-item {{answerInputMode === 'image' ? 'active' : ''}}" bindtap="setAnswerInputMode" data-mode="image">图片答案</view>
+</view>
+
+            <!-- 文字答案输入 -->
+            <block wx:if="{{answerInputMode === 'text'}}">
+              <view class="answer-input-area">
+                <textarea class="form-textarea answer-textarea" placeholder="请输入详细解答过程..." value="{{formData.answer}}" bindinput="onAnswerTextInput"></textarea>
+              </view>
+            </block>
+
+            <!-- 图片答案上传 -->
+            <block wx:elif="{{answerInputMode === 'image'}}">
+              <view class="answer-input-area">
+                <view class="image-upload-area" bindtap="chooseAnswerFromAlbum">
+                  <image wx:if="{{formData.answerImage}}" class="answer-preview-image" src="{{formData.answerImage}}" mode="aspectFit"></image>
+                  <view wx:else class="upload-placeholder">
+                    <text class="iconfont icon-camera"></text>
+                    <text class="upload-text">点击上传答案图片</text>
+                  </view>
                 </view>
-              </block>
-              <block wx:else>
-                <image class="answer-preview" src="{{formData.answerPhotoSrc}}" mode="widthFix"></image>
-                <view class="retake-answer-btn" bindtap="retakeAnswerPhoto">重新拍照</view>
-              </block>
-            </view>
+              </view>
+            </block>
           </block>
         </view>
         

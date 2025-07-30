@@ -99,36 +99,97 @@ Page({
     });
     
     try {
-      // 读取所有错题
-      const allMistakes = util.storage.get('mistakes', '[]');
-      const mistakesArray = JSON.parse(allMistakes);
+      // 读取所有错题 - 统一使用 'questions' 键
+      const questions = util.storage.get('questions', []);
       
       // 处理统计信息
       const currentTime = new Date().getTime();
       const oneWeek = 7 * 24 * 60 * 60 * 1000; // 一周的毫秒数
+      const oneWeekAgo = currentTime - oneWeek;
       
-      const total = mistakesArray.length;
-      const weekly = mistakesArray.filter(item => {
-        return (currentTime - item.timestamp) <= oneWeek;
+      const total = questions.length;
+      
+      // 修复每周新增错题数计算逻辑
+      // 确保正确处理所有时间格式，并添加详细日志便于调试
+      let weekly = 0;
+      const weeklyItems = [];
+      
+      questions.forEach(item => {
+        // 兼容旧数据格式，优先使用 date 字段，如果没有则使用 timestamp
+        let itemTime = 0;
+        
+        if (item.date) {
+          if (typeof item.date === 'string') {
+            // 处理特殊日期字符串
+            if (item.date === '今天') {
+              itemTime = new Date().setHours(0, 0, 0, 0);
+            } else if (item.date === '昨天') {
+              const yesterday = new Date();
+              yesterday.setDate(yesterday.getDate() - 1);
+              itemTime = yesterday.setHours(0, 0, 0, 0);
+            } else {
+              // 处理ISO格式日期字符串
+              const parsedDate = new Date(item.date);
+              itemTime = parsedDate.getTime();
+              // 验证日期有效性
+              if (isNaN(itemTime)) {
+                console.warn('无效的date字符串:', item.date, '错题ID:', item.id);
+                itemTime = 0;
+              }
+            }
+          } else if (typeof item.date === 'number') {
+            itemTime = item.date;
+          }
+        } else if (item.timestamp) {
+          itemTime = item.timestamp;
+        }
+        
+        // 检查是否在一周内
+        const isWithinWeek = itemTime >= oneWeekAgo && itemTime <= currentTime;
+        
+        if (isWithinWeek) {
+          weekly++;
+          weeklyItems.push({
+            id: item.id,
+            date: item.date,
+            timestamp: item.timestamp,
+            itemTime: itemTime
+          });
+        }
+      });
+      
+      // 调试日志
+      console.log('总错题数:', total, '本周新增:', weekly);
+      console.log('本周新增错题详情:', weeklyItems);
+      console.log('一周前时间戳:', oneWeekAgo);
+      console.log('当前时间戳:', currentTime);
+      
+      // 兼容不同的状态字段格式
+      const mastered = questions.filter(item => {
+        const status = item.status || item.mastery;
+        return status === 'mastered' || status === 2;
       }).length;
-      
-      const mastered = mistakesArray.filter(item => item.status === 'mastered').length;
       const progress = total > 0 ? Math.round((mastered / total) * 100) : 0;
       
       // 获取最近的错题（最多3个）
-      const recentMistakes = mistakesArray
-        .sort((a, b) => b.timestamp - a.timestamp)
+      const recentMistakes = questions
+        .sort((a, b) => {
+          // 兼容不同的时间字段格式
+          const timeA = a.date ? new Date(a.date).getTime() : (a.timestamp || 0);
+          const timeB = b.date ? new Date(b.date).getTime() : (b.timestamp || 0);
+          return timeB - timeA;
+        })
         .slice(0, 3)
         .map(item => {
           // 计算时间标签
-          const timeLabel = this.getTimeLabel(item.timestamp);
+          const timeLabel = this.getTimeLabel(item.date || item.timestamp);
           return {
             id: item.id,
             title: item.title || '未命名错题',
             subject: item.subject || '未分类',
             time: timeLabel,
-            status: item.status || 'pending',
-            image: item.imageUrl || 'https://images.pexels.com/photos/4021256/pexels-photo-4021256.jpeg?auto=compress&cs=tinysrgb&w=120'
+            status: item.status || item.mastery || 'pending',
+            image: item.image || item.imageUrl || 'https://images.pexels.com/photos/4021256/pexels-photo-4021256.jpeg?auto=compress&cs=tinysrgb&w=120'
           };
         });
       
@@ -266,6 +327,102 @@ Page({
     
     wx.navigateTo({
       url: `../question_detail/question_detail?id=${id}`
+    });
+  },
+
+  // 调试数据一致性
+  debugData() {
+    const questions = util.storage.get('questions', []);
+    const mistakes = util.storage.get('mistakes', []);
+    
+    console.log('=== 数据一致性检查 ===');
+    console.log('questions 数据:', questions);
+    console.log('mistakes 数据:', mistakes);
+    console.log('questions 数量:', questions.length);
+    console.log('mistakes 数量:', mistakes ? (typeof mistakes === 'string' ? JSON.parse(mistakes).length : mistakes.length) : 0);
+    
+    // 统计状态分布
+    const statusStats = questions.reduce((acc, q) => {
+      const status = q.status || q.mastery || 'unknown';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+    
+    console.log('状态分布:', statusStats);
+    
+    wx.showModal({
+      title: '数据调试',
+      content: `questions: ${questions.length}条\nmistakes: ${mistakes ? (typeof mistakes === 'string' ? JSON.parse(mistakes).length : mistakes.length) : 0}条\n状态分布: ${JSON.stringify(statusStats)}`,
+      showCancel: false
+    });
+  },
+  
+  // 调试每周新增错题数据
+  debugWeeklyData() {
+    const questions = util.storage.get('questions', []);
+    const currentTime = new Date().getTime();
+    const oneWeek = 7 * 24 * 60 * 60 * 1000;
+    const oneWeekAgo = currentTime - oneWeek;
+    
+    // 计算每周新增
+    let weekly = 0;
+    const weeklyItems = [];
+    
+    questions.forEach(item => {
+      let itemTime = 0;
+      
+      if (item.date) {
+        if (typeof item.date === 'string') {
+          const parsedDate = new Date(item.date);
+          itemTime = parsedDate.getTime();
+          if (isNaN(itemTime)) {
+            console.warn('无效的date字符串:', item.date, '错题ID:', item.id);
+            itemTime = 0;
+          }
+        } else if (typeof item.date === 'number') {
+          itemTime = item.date;
+        }
+      } else if (item.timestamp) {
+        itemTime = item.timestamp;
+      }
+      
+      const isWithinWeek = itemTime >= oneWeekAgo && itemTime <= currentTime;
+      
+      if (isWithinWeek) {
+        weekly++;
+        weeklyItems.push({
+          id: item.id,
+          title: item.title || '未命名',
+          date: item.date,
+          timestamp: item.timestamp,
+          itemTime: itemTime,
+          dateString: item.date ? (typeof item.date === 'string' ? item.date : new Date(item.date).toISOString()) : (item.timestamp ? new Date(item.timestamp).toISOString() : '未知')
+        });
+      }
+    });
+    
+    console.log('=== 每周新增错题调试 ===');
+    console.log('当前时间:', new Date(currentTime).toISOString());
+    console.log('一周前时间:', new Date(oneWeekAgo).toISOString());
+    console.log('本周新增错题数:', weekly);
+    console.log('本周新增错题详情:', weeklyItems);
+    
+    // 显示详细信息
+    const detailText = weeklyItems.map(item => {
+      return `ID: ${item.id}\n标题: ${item.title}\n日期: ${item.dateString}\n`;
+    }).join('\n--------------------\n');
+    
+    wx.showModal({
+      title: '每周数据调试',
+      content: `本周新增错题数: ${weekly}\n\n详细信息:\n${detailText}`,
+      showCancel: false,
+      confirmText: '查看控制台详情',
+      success: () => {
+        wx.showToast({
+          title: '请查看控制台输出',
+          icon: 'none'
+        });
+      }
     });
   }
 })

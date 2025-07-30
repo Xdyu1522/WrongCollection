@@ -54,23 +54,50 @@ Page({
     const question = questions.find(q => q.id === id)
     
     if (question) {
+      // 兼容旧数据格式
+      let answerType = question.answerType || 'normal';
+      let answer = question.answer || '';
+      let answerImage = question.answerImage || '';
+      
+      // 如果是从旧版本数据迁移，需要转换格式
+      if (question.questionType === '解答题' && !answerType) {
+        answerType = 'normal';
+      }
+      if (question.questionType === '选择题' && !answerType) {
+        answerType = 'choice';
+      }
+      if (question.questionType === '填空题' && !answerType) {
+        answerType = 'fill';
+      }
+      
+      // 兼容旧版本的答案字段
+      if (!answer && question.correctAnswer) {
+        answer = question.correctAnswer;
+      }
+      if (!answer && question.answerText) {
+        answer = question.answerText;
+      }
+      if (!answerImage && question.answerPhotoSrc) {
+        answerImage = question.answerPhotoSrc;
+      }
+      
       this.setData({
         question,
         editForm: {
           title: question.title,
           subject: question.subject,
-          tags: [...question.tags],
+          tags: [...(question.tags || [])],
           status: question.status || 'not-mastered',
-          errorReason: question.errorReason,
-          answerType: question.answerType || 'normal',
-          answer: question.answer || '',
+          errorReason: question.errorReason || '',
+          answerType: answerType,
+          answer: answer,
           answerList: question.answerList || [],
-          answerImage: question.answerImage || ''
+          answerImage: answerImage
         },
-        answerInputMode: question.answerImage ? 'image' : 'text',
+        answerInputMode: answerImage ? 'image' : 'text',
         subjectIndex: this.data.subjects.indexOf(question.subject) > -1 ? 
                       this.data.subjects.indexOf(question.subject) : 0,
-        answerTypeIndex: this.getAnswerTypeIndex(question.answerType),
+        answerTypeIndex: this.getAnswerTypeIndex(answerType),
         difficulty: question.difficulty || 'medium',
         knowledgePoints: question.knowledgePoints || [],
         errorReason: question.errorReason || '',
@@ -382,33 +409,32 @@ Page({
         status: 'pending' // 默认为待掌握状态
       };
       
-      // 读取现有错题数据
-      const allMistakes = wx.getStorageSync('mistakes') || '[]';
-      let mistakesArray = JSON.parse(allMistakes);
+      // 读取现有错题数据 - 统一使用 'questions' 键
+      const questions = wx.getStorageSync('questions') || [];
       
       // 如果是编辑已有错题
       if (this.data.isEditMode && this.data.question.id) {
         // 查找并更新已有错题
-        const index = mistakesArray.findIndex(item => item.id === this.data.question.id);
+        const index = questions.findIndex(item => item.id === this.data.question.id);
         if (index > -1) {
           // 保留原有ID和状态
           questionData.id = this.data.question.id;
-          questionData.status = mistakesArray[index].status || 'pending';
+          questionData.status = questions[index].status || 'pending';
           // 更新错题
-          mistakesArray[index] = questionData;
+          questions[index] = questionData;
         } else {
           // 未找到对应ID，作为新增处理
           questionData.id = this.generateUniqueId();
-          mistakesArray.push(questionData);
+          questions.push(questionData);
         }
       } else {
         // 新增错题
         questionData.id = this.generateUniqueId();
-        mistakesArray.push(questionData);
+        questions.push(questionData);
       }
       
       // 保存到本地存储
-      wx.setStorageSync('mistakes', JSON.stringify(mistakesArray));
+      wx.setStorageSync('questions', questions);
       
       // 隐藏加载提示
       wx.hideLoading();

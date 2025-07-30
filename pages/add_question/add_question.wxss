@@ -2,6 +2,11 @@
 page {
   --primary-color: #22c55e;
   --secondary-color: #16a34a;
+  --text-color: #333333;
+  --text-light: #666666;
+  --border-color: #e5e7eb;
+  --bg-color: #f9fafb;
+  --danger-color: #ef4444;
   height: 100%;
   background-color: #000;
 }
@@ -378,11 +383,6 @@ page {
 .tag-item.selected {
   background-color: #22c55e;
   color: white;
-}
-
-.tag-item.selected {
-  background: #22c55e;
-  color: #fff;
   transform: scale(1.05);
   box-shadow: 0 2rpx 8rpx rgba(34, 197, 94, 0.3);
 }
@@ -494,26 +494,62 @@ page {
 
 .type-item.selected {
   background-color: #22c55e;
-  color: #fff;
+  color: white;
 }
 
 /* 答案照片相关样式 */
+.tab-container {
+  display: flex;
+  border-bottom: 1rpx solid var(--border-color);
+  margin-bottom: 20rpx;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  font-size: 28rpx;
+  color: var(--text-light);
+  position: relative;
+}
+
+.tab-item.active {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.tab-item.active:after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 25%;
+  width: 50%;
+  height: 4rpx;
+  background-color: var(--primary-color);
+  border-radius: 4rpx;
+}
+
 .answer-photo-container {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
 }
 
 .add-answer-btn {
-  width: 100%;
-  height: 160rpx;
-  border: 2rpx dashed #ddd;
-  border-radius: 8rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #999;
+  padding: 40rpx 0;
+  border: 1rpx dashed var(--border-color);
+  border-radius: 16rpx;
+  background: var(--bg-color);
+  color: var(--text-light);
   font-size: 28rpx;
-  background-color: #f9f9f9;
+}
+
+.add-answer-btn.album-btn {
+  margin-top: 20rpx;
 }
 
 .add-icon {
@@ -521,10 +557,44 @@ page {
   margin-bottom: 10rpx;
 }
 
+/* 图片上传区域样式 */
+.image-upload-area {
+  width: 100%;
+  height: 300rpx;
+  background-color: #f5f5f5;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-light);
+}
+
+.upload-placeholder .iconfont {
+  font-size: 60rpx;
+  margin-bottom: 16rpx;
+}
+
+.upload-text {
+  font-size: 28rpx;
+}
+
+.answer-preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .answer-preview {
   width: 100%;
   max-height: 300rpx;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   margin-bottom: 10rpx;
 }
 
@@ -537,4 +607,20 @@ page {
   font-size: 24rpx;
   border-radius: 30rpx;
   margin-top: 10rpx;
+}
+
+/* 答案输入区域样式 */
+.answer-input-area {
+  margin-top: 16rpx;
+}
+
+.answer-textarea {
+  width: 100%;
+  height: 200rpx;
+  padding: 24rpx;
+  border: 1rpx solid var(--border-color);
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: var(--text-color);
+  background: #ffffff;
 }
